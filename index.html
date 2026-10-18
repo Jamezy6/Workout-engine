@@ -3,121 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Adaptive Rehab & Performance Engine</title>
+  <title>Adaptive Rehab & Performance Engine v2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #0b1120; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     .card { background-color: #1e293b; border: 1px solid #334155; }
-    .accent-border { border-left: 4px solid #38bdf8; }
-    .warn-border { border-left: 4px solid #f59e0b; }
-    .push-border { border-left: 4px solid #10b981; }
+    .standalone-card { background-color: #1e293b; border: 1px solid #334155; border-left: 4px solid #38bdf8; }
+    .superset-wrapper { background: linear-gradient(180deg, rgba(49, 46, 129, 0.28) 0%, rgba(30, 41, 59, 0.75) 100%); border: 1.5px solid #6366f1; }
     input[type="checkbox"]:checked + span { text-decoration: line-through; color: #64748b; }
+    ::-webkit-scrollbar { height: 4px; width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="pb-24 max-w-2xl mx-auto px-4 pt-6">
+<body class="pb-28 max-w-2xl mx-auto px-4 pt-5">
 
-  <!-- Header & Core Guardrails -->
-  <header class="mb-6">
+  <!-- Header -->
+  <header class="mb-5">
     <div class="flex justify-between items-start">
       <div>
-        <span class="text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-950/60 px-2.5 py-1 rounded border border-sky-800">10-Mo Post-MACI Protocol</span>
-        <h1 class="text-2xl font-bold mt-2 tracking-tight">Adaptive Training Engine</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Focus: Unilateral Quad Rebuild • Upper Hypertrophy • Recomp (-3-4kg)</p>
+        <div class="flex items-center space-x-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400 bg-sky-950/70 px-2.5 py-0.5 rounded border border-sky-800">10-Mo Post-MACI</span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/70 px-2.5 py-0.5 rounded border border-indigo-800">Gemini Live v2</span>
+        </div>
+        <h1 class="text-2xl font-bold mt-1.5 tracking-tight">Adaptive Training Engine</h1>
       </div>
-      <button onclick="resetAllData()" class="text-xs text-slate-400 hover:text-red-400 border border-slate-700 px-2.5 py-1.5 rounded">Reset Week</button>
+      <div class="flex space-x-1.5">
+        <button onclick="toggleApiModal()" id="apiKeyBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg font-medium">⚙️ API Key</button>
+        <button onclick="resetToDefaults()" class="text-xs text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1.5 rounded-lg">Reset</button>
+      </div>
     </div>
 
-    <!-- Non-Negotiable Daily Rehab Banner -->
-    <div class="mt-4 p-3 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+    <div class="mt-3 p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
       <div>
-        <span class="font-semibold text-amber-400">Graft Guardrail:</span> Discomfort must stay <span class="underline">strictly &lt; 3/10</span> (0/10 next morning).
+        <span class="font-semibold text-amber-400">Graft Guardrail:</span> Knee discomfort <span class="underline">strictly &lt; 3/10</span> (0/10 next AM).
       </div>
       <span class="text-slate-400 font-mono">3-1-1 Tempo</span>
     </div>
   </header>
 
-  <!-- STEP 1: Weekly Availability Planner -->
-  <section class="card rounded-xl p-4 mb-5 shadow-lg">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">1. Select Available Training Days</h2>
+  <!-- API Key Setup Modal -->
+  <div id="apiModal" class="hidden card rounded-xl p-4 mb-5 border-sky-500 shadow-xl">
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="text-sm font-bold text-sky-400">Gemini API Key Configuration</h3>
+      <button onclick="toggleApiModal()" class="text-xs text-slate-400">✕ Close</button>
+    </div>
+    <p class="text-xs text-slate-400 mb-3">Stored strictly in your device's private browser storage (`localStorage`). Never shared or uploaded.</p>
+    <div class="flex space-x-2">
+      <input type="password" id="apiKeyInput" placeholder="Paste AIzaSy... key here" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+      <button onclick="saveApiKey()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs">Save Key</button>
+    </div>
+  </div>
+
+  <!-- STEP 1: Weekly Day Selector -->
+  <section class="card rounded-xl p-4 mb-4 shadow">
+    <div class="flex justify-between items-center mb-2.5">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">1. Active Training Days This Week</h2>
       <span id="dayCountBadge" class="text-xs bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">0 Days</span>
     </div>
-    <div class="grid grid-cols-7 gap-1.5 mb-3" id="daySelector">
-      <!-- Generated by JS -->
-    </div>
-    <button onclick="generateSchedule()" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition shadow">
-      Build / Recalculate Weekly Schedule
+    <div class="grid grid-cols-7 gap-1.5 mb-3" id="daySelector"></div>
+    <button onclick="rebuildBaselineWeek()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-semibold py-2 rounded-lg text-xs transition">
+      Re-Assign Default Templates to Selected Days
     </button>
   </section>
 
-  <!-- STEP 2: Active Day & Dynamic Context Override -->
-  <section id="workoutContainer" class="hidden">
-    
-    <!-- Day Tabs -->
-    <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-4" id="activeDayTabs"></div>
-
-    <!-- Mid-Week Context Adjuster -->
-    <div class="card rounded-xl p-4 mb-5 shadow-lg">
-      <div class="flex justify-between items-center mb-2">
-        <label class="text-xs font-bold uppercase tracking-wider text-slate-300">2. Today's Readiness / Context Override</label>
-        <span id="activeModBadge" class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300">Baseline</span>
+  <!-- STEP 2: Gemini Natural Language Co-Pilot -->
+  <section class="card rounded-xl p-4 mb-5 border-indigo-500/50 shadow-lg">
+    <div class="flex justify-between items-center mb-2">
+      <div class="flex items-center space-x-2">
+        <span class="text-sm">✨</span>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-300">2. Talk to Your Schedule (Gemini Co-Pilot)</h2>
       </div>
-      <select id="contextSelect" onchange="updateDayContext(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
-        <option value="baseline">🟢 Baseline — Good sleep, knee < 2/10, ready for standard load</option>
-        <option value="knee_flare">🟠 Knee Stiff / ITB Tight (>2/10) — Zero-shear pivot & rehab focus</option>
-        <option value="poor_sleep">🟡 Poor Sleep / High Fatigue — Cut volume 25%, drop RPE, protect CNS</option>
-        <option value="sore_upper">🟣 Upper Body DOMS / Shoulder Tight — Joint-friendly angles & flush</option>
-        <option value="push_harder">🔥 Feeling Great (Push Harder) — Add upper/posterior volume (Graft capped)</option>
-        <option value="short_time">⏱️ Short on Time (35 Min Express) — Superset compounds + core rehab</option>
-      </select>
-      <p id="contextExplanation" class="text-xs text-slate-400 mt-2 italic"></p>
+      <span id="aiStatus" class="text-[11px] text-slate-400 font-mono">Ready</span>
     </div>
 
-    <!-- Daily Rehab Warmup Checklist -->
-    <div class="card rounded-xl p-4 mb-4 border-l-4 border-l-emerald-500">
-      <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('rehabWarmup')">
-        <div>
-          <h3 class="text-sm font-bold text-emerald-400">Mandatory Pre-Session Rehab & Prep (8 Mins)</h3>
-          <p class="text-xs text-slate-400">Complete prior to loading (Brittney's Protocol)</p>
-        </div>
-        <span class="text-xs text-slate-400">▼</span>
-      </div>
-      <div id="rehabWarmup" class="mt-3 space-y-2 text-xs border-t border-slate-800 pt-3">
-        <label class="flex items-center space-x-2.5 cursor-pointer">
-          <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4">
-          <span><strong>Foam Roll / Massage Gun:</strong> Outer thigh (ITB) & lateral hip — 2 mins</span>
-        </label>
-        <label class="flex items-center space-x-2.5 cursor-pointer">
-          <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4">
-          <span><strong>Active Knee Flexion (Sitting):</strong> 3 x 10 controlled reps</span>
-        </label>
-        <label class="flex items-center space-x-2.5 cursor-pointer">
-          <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4">
-          <span><strong>Hip Flexor Stretch:</strong> 1 x 3 holds (30s each side, posterior pelvic tilt)</span>
-        </label>
-        <label class="flex items-center space-x-2.5 cursor-pointer">
-          <input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4">
-          <span><strong>Single-Leg Bosu Balance:</strong> 3 x 45s (knee slightly soft, glute engaged)</span>
-        </label>
-      </div>
+    <!-- Quick-Action Feedback Chips -->
+    <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-2.5">
+      <button onclick="fillPrompt('Rebuild today\'s workout to include antagonist supersets where safe, keeping heavy axial lifts standalone.')" class="flex-shrink-0 text-[11px] bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 px-2.5 py-1 rounded-full">🔗 Supersets Today</button>
+      <button onclick="fillPrompt('Change Friday to just a 40-minute low-impact swim session (warmup, main intervals, cooldown) and adjust the rest of the week.')" class="flex-shrink-0 text-[11px] bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-800 px-2.5 py-1 rounded-full">🏊‍♂️ Swim Only on Friday</button>
+      <button onclick="fillPrompt('My knee feels slightly stiff today (2.5/10). Swap today\'s high-shear knee exercises for zero-shear glute/posterior alternatives and Spanish squats.')" class="flex-shrink-0 text-[11px] bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-800 px-2.5 py-1 rounded-full">🟠 Knee Stiff Today</button>
+      <button onclick="fillPrompt('I slept poorly (<6 hours). Cut today\'s volume by 25%, lower RPE targets, and pair accessories into quick supersets.')" class="flex-shrink-0 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full">💤 Poor Sleep Deload</button>
+      <button onclick="fillPrompt('I feel great today and want to push harder. Add volume/intensity to upper body or posterior chain without exceeding MACI knee limits.')" class="flex-shrink-0 text-[11px] bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 px-2.5 py-1 rounded-full">🔥 Push Harder Today</button>
     </div>
 
-    <!-- Step-by-Step Workout Output -->
-    <div id="workoutSteps" class="space-y-3"></div>
-
+    <div class="flex space-x-2">
+      <textarea id="aiPromptInput" rows="2" placeholder="e.g., 'Make Friday just a swim, and convert Tuesday into supersets...'" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 resize-none"></textarea>
+      <button onclick="sendToGemini()" id="sendAiBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 rounded-lg text-xs transition flex items-center justify-center">
+        Update
+      </button>
+    </div>
+    <div id="aiSummaryBanner" class="hidden mt-2.5 p-2.5 rounded-lg bg-indigo-950/50 border border-indigo-800/70 text-xs text-indigo-200"></div>
   </section>
 
-  <!-- Floating Rest Timer Bar -->
+  <!-- Active Day Tabs -->
+  <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-4" id="activeDayTabs"></div>
+
+  <!-- Mandatory Physio Warmup -->
+  <div class="card rounded-xl p-3.5 mb-4 border-l-4 border-l-emerald-500">
+    <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('rehabWarmup').classList.toggle('hidden')">
+      <div>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Pre-Session Rehab & Prep (8 Mins)</h3>
+        <p class="text-[11px] text-slate-400">Brittney's Protocol — Tap to expand/collapse</p>
+      </div>
+      <span class="text-xs text-slate-400">▼</span>
+    </div>
+    <div id="rehabWarmup" class="mt-2.5 space-y-1.5 text-xs border-t border-slate-800 pt-2.5">
+      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Foam Roll / Massage Gun:</strong> Outer thigh (ITB) & lateral hip (2 mins)</span></label>
+      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Active Knee Flexion (Sitting):</strong> 3 × 10 controlled reps</span></label>
+      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Hip Flexor Stretch:</strong> 1 × 3 holds (30s each side)</span></label>
+      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Single-Leg Bosu Balance:</strong> 3 × 45s (every 2nd day)</span></label>
+    </div>
+  </div>
+
+  <!-- Workout Execution Container -->
+  <div id="workoutSteps" class="space-y-4"></div>
+
+  <!-- Floating Rest Timer -->
   <div class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 p-3 z-50">
     <div class="max-w-2xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Rest Timer:</span>
+      <div class="flex items-center space-x-2.5">
+        <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Rest:</span>
         <span id="timerDisplay" class="font-mono text-xl font-bold text-sky-400">00:00</span>
       </div>
-      <div class="flex space-x-2">
-        <button onclick="startTimer(60)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded font-semibold border border-slate-700">60s</button>
-        <button onclick="startTimer(90)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded font-semibold border border-slate-700">90s</button>
-        <button onclick="startTimer(120)" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded font-semibold border border-slate-700">2m</button>
+      <div class="flex space-x-1.5">
+        <button onclick="startTimer(45)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">45s</button>
+        <button onclick="startTimer(60)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">60s</button>
+        <button onclick="startTimer(90)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">90s</button>
+        <button onclick="startTimer(120)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">2m</button>
         <button onclick="stopTimer()" class="bg-red-950/60 hover:bg-red-900 text-red-300 text-xs px-2.5 py-1.5 rounded border border-red-800">Stop</button>
       </div>
     </div>
@@ -125,286 +136,349 @@
 
   <script>
     const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    
-    // Core Workout Templates respecting 10-mo MACI & Hypertrophy
-    const WORKOUT_LIBRARY = {
+
+    // Default block-based templates supporting both 'standalone' and 'superset' blocks
+    const DEFAULT_TEMPLATES = {
       LOWER_A: {
         title: "Lower Body Strength + Graft Load A",
-        subtitle: "Controlled Knee Flexion & Posterior Chain",
-        exercises: [
+        subtitle: "Standalone Compound Focus + Superset Finisher",
+        aiNote: "Baseline schedule loaded.",
+        blocks: [
           {
-            id: "box_squat",
-            name: "Barbell Back Squat to Box",
-            category: "quad_compound",
-            sets: 4,
-            reps: "8-10",
-            load: "Controlled progressive load (RPE 7.5)",
-            cues: "3s eccentric down to box. Pause 1s on box without relaxing trunk. Drive through mid-foot. Discomfort < 2/10.",
-            kneeFlareAlt: { name: "Glute Bridge / Barbell Hip Thrust", sets: 4, reps: "10-12", load: "Moderate-Heavy", cues: "Zero knee shear. 2s squeeze at top, tibias vertical." }
+            type: "standalone",
+            restSeconds: 120,
+            restNote: "Rest 2 mins between sets (Full CNS & Knee Recovery)",
+            exercises: [
+              { id: "box_squat", code: "1", name: "Barbell Back Squat to Box", sets: 4, reps: "8-10", load: "Controlled Progressive (RPE 7.5)", cues: "3s eccentric down to box. 1s pause on box keeping trunk tight. Discomfort strictly < 2/10." }
+            ]
           },
           {
-            id: "bb_rdl",
-            name: "Barbell or DB Romanian Deadlift (RDL)",
-            category: "posterior",
-            sets: 4,
-            reps: "8-10",
-            load: "20kg+ bar or progressive DBs (RPE 8)",
-            cues: "Soft fixed knee angle (15°). Hinge hips back until hamstring stretch. Protect lower back.",
+            type: "standalone",
+            restSeconds: 90,
+            restNote: "Rest 90s between sets",
+            exercises: [
+              { id: "bb_rdl", code: "2", name: "Barbell or DB Romanian Deadlift (RDL)", sets: 4, reps: "8-10", load: "20kg+ Bar or Heavy DBs (RPE 8)", cues: "15° fixed knee angle. Push hips straight back until hamstring stretch." }
+            ]
           },
           {
-            id: "sl_squat",
-            name: "Supported Single-Leg Squat to High Box",
-            category: "quad_unilateral",
-            sets: 3,
-            reps: "8 each leg",
-            load: "Bodyweight / Light Goblet",
-            cues: "Keep knee tracking over 2nd toe. Prevent hip drop (ITB protection). 3s lower.",
-            kneeFlareAlt: { name: "Side-Lying Banded Clamshells + Straight Leg Raises", sets: 3, reps: "15 each", load: "Heavy Mini-Band", cues: "Isolate glute medius and VMO without joint compression." }
+            type: "superset",
+            label: "SUPERSET A — Unilateral Quad & Restricted-Arc Isolation",
+            restBetweenExercises: "0s (Move immediately from A1 to A2)",
+            restAfterRoundSeconds: 90,
+            restNote: "Rest 90s after completing both A1 & A2",
+            exercises: [
+              { id: "sl_squat", code: "A1", name: "Supported Single-Leg Squat to Box", sets: 3, reps: "8 each leg", load: "Bodyweight / Light Goblet", cues: "Knee tracks over 2nd toe. Prevent hip drop (ITB protection)." },
+              { id: "leg_ext", code: "A2", name: "Restricted-Arc Leg Extension", sets: 3, reps: "12-15", load: "Light-Mod (Strict Control)", cues: "Restricted pain-free terminal arc only. 2s pause at top, 3s lower." }
+            ]
           },
           {
-            id: "leg_ext",
-            name: "Restricted-Arc Leg Extension",
-            category: "quad_iso",
-            sets: 3,
-            reps: "12-15",
-            load: "Light-Moderate (Strict Control)",
-            cues: "RESTRICTED ROM (90° to 45° or pain-free terminal zone). 2s isometric hold at top, 3s lower.",
-            kneeFlareAlt: { name: "Spanish Squat Isometric Hold", sets: 3, reps: "30-40s hold", load: "Heavy Resistance Band", cues: "Analgesic tendon/cartilage isometric loading at pain-free angle." }
-          },
-          {
-            id: "calf_raise",
-            name: "Single-Leg Calf Raise on Step",
-            category: "rehab_acc",
-            sets: 3,
-            reps: "8-10 each",
-            load: "Bodyweight + DB",
-            cues: "Full stretch at bottom, 2s pause at peak contraction (Brittney's protocol)."
-          },
-          {
-            id: "farmers_carry",
-            name: "Heavy Farmer's Carries",
-            category: "core",
-            sets: 3,
-            reps: "40m walk",
-            load: "Heavy DBs",
-            cues: "Tall posture, ribs down, steady foot strike for dynamic knee stabilization."
+            type: "superset",
+            label: "SUPERSET B — Physio Calf & Core Stability",
+            restBetweenExercises: "0s",
+            restAfterRoundSeconds: 60,
+            restNote: "Rest 60s after completing both B1 & B2",
+            exercises: [
+              { id: "calf_raise", code: "B1", name: "Single-Leg Calf Raise on Step", sets: 3, reps: "8-10 each", load: "Bodyweight + DB", cues: "Full heel drop stretch, 2s pause at peak contraction." },
+              { id: "farmers_carry", code: "B2", name: "Heavy Farmer's Carry", sets: 3, reps: "40m walk", load: "Heavy DBs", cues: "Tall posture, ribs stacked, steady dynamic knee control." }
+            ]
           }
         ]
       },
 
       UPPER_A: {
-        title: "Upper Body Heavy Compound (Push/Pull)",
-        subtitle: "Maximal Hypertrophy Stimulus • Zero Lower Shear",
-        exercises: [
+        title: "Upper Body Heavy Antagonist Supersets",
+        subtitle: "High-Density Push/Pull Hypertrophy • Zero Knee Shear",
+        aiNote: "Antagonist supersets pre-configured for time efficiency and pump.",
+        blocks: [
           {
-            id: "db_bench",
-            name: "Flat Dumbbell Bench Press",
-            category: "upper_push",
-            sets: 4,
-            reps: "6-8",
-            load: "Up to 40kg DBs (RPE 8.5)",
-            cues: "45° elbow tuck to protect shoulder capsule. Controlled 2s lower, explosive press.",
-            soreUpperAlt: { name: "Neutral-Grip Floor or Swiss Bar Press", sets: 3, reps: "10-12", load: "Moderate (30kg DBs)", cues: "Reduced shoulder extension stress." }
+            type: "superset",
+            label: "SUPERSET A — Primary Heavy Horizontal Push / Vertical Pull",
+            restBetweenExercises: "15-20s transition",
+            restAfterRoundSeconds: 120,
+            restNote: "Rest 2 mins after completing both A1 & A2",
+            exercises: [
+              { id: "db_bench", code: "A1", name: "Flat Dumbbell Bench Press", sets: 4, reps: "6-8", load: "Up to 40kg DBs (RPE 8.5)", cues: "45° elbow tuck to protect shoulder capsule. 2s lower, drive up." },
+              { id: "lat_pulldown", code: "A2", name: "Single-Arm Half-Kneeling Lat Pulldown", sets: 4, reps: "10-12 each", load: "Heavy Stack", cues: "Pad under kneeling knee. Drive elbow into hip pocket." }
+            ]
           },
           {
-            id: "lat_pulldown",
-            name: "Single-Arm Half-Kneeling Lat Pulldown",
-            category: "upper_pull",
-            sets: 4,
-            reps: "10-12 each",
-            load: "Controlled Heavy Stack",
-            cues: "Pad under kneeling knee. Drive elbow down toward hip pocket, full scapular protraction at top."
+            type: "superset",
+            label: "SUPERSET B — Scapular Plane Press & Supported Row",
+            restBetweenExercises: "0-15s transition",
+            restAfterRoundSeconds: 90,
+            restNote: "Rest 90s after completing both B1 & B2",
+            exercises: [
+              { id: "landmine_press", code: "B1", name: "Single-Arm Standing Landmine Press", sets: 3, reps: "10 each", load: "Bar + 15-25kg", cues: "Press along scapular plane; zero shoulder impingement." },
+              { id: "chest_row", code: "B2", name: "Chest-Supported DB or Machine Row", sets: 3, reps: "10-12", load: "Heavy (RPE 8)", cues: "2s retraction squeeze at top." }
+            ]
           },
           {
-            id: "landmine_press",
-            name: "Single-Arm Standing Landmine Press",
-            category: "upper_push",
-            sets: 3,
-            reps: "10 each",
-            load: "Bar + 15-25kg",
-            cues: "Scapular-plane pressing—upward rotation without shoulder impingement. Brace glutes & abs."
-          },
-          {
-            id: "chest_row",
-            name: "Chest-Supported DB or Machine Row",
-            category: "upper_pull",
-            sets: 4,
-            reps: "10-12",
-            load: "Heavy (RPE 8)",
-            cues: "2s squeeze at retraction. Zero lower-back or knee fatigue."
-          },
-          {
-            id: "arms_superset",
-            name: "Superset: Cable Face Pulls + Incline DB Curls",
-            category: "upper_acc",
-            sets: 3,
-            reps: "12-15 each",
-            load: "Moderate",
-            cues: "External rotation on face pulls for cuff health; full bicep stretch on incline."
+            type: "superset",
+            label: "SUPERSET C — Shoulder Cuff & Arm Finisher",
+            restBetweenExercises: "0s",
+            restAfterRoundSeconds: 60,
+            restNote: "Rest 60s after completing both C1 & C2",
+            exercises: [
+              { id: "face_pulls", code: "C1", name: "Cable Face Pulls (External Rotation)", sets: 3, reps: "15", load: "Moderate", cues: "Thumbs back, rotate cuffs externally." },
+              { id: "incline_curls", code: "C2", name: "Incline DB Bicep Curls", sets: 3, reps: "10-12", load: "Moderate", cues: "Full long-head stretch at bottom." }
+            ]
           }
         ]
       },
 
       LOWER_B: {
         title: "Unilateral Lower, Hamstrings & Landing Mechanics",
-        subtitle: "Asymmetry Correction & Graft Resilience",
-        exercises: [
+        subtitle: "Asymmetry Correction & Posterior Dominance",
+        aiNote: "Baseline schedule loaded.",
+        blocks: [
           {
-            id: "landing_mech",
-            name: "Low-Box Drop Landing / Deceleration Drill",
-            category: "plyo_rehab",
-            sets: 3,
-            reps: "6 controlled drops",
-            load: "Bodyweight (Fresh CNS)",
-            cues: "Step off low 15cm step, land quietly in athletic stance absorbing through hips & quads. Skip if knee > 1/10.",
-            kneeFlareAlt: { name: "Bosu Ball Weight Shifts & Perturbations", sets: 3, reps: "45s", load: "Bodyweight", cues: "Proprioceptive stability without impact." }
+            type: "standalone",
+            restSeconds: 90,
+            restNote: "Rest 90s — Perform while CNS is 100% fresh",
+            exercises: [
+              { id: "landing_drill", code: "1", name: "Low-Box Drop Landing / Deceleration Drill", sets: 3, reps: "6 controlled drops", load: "Bodyweight", cues: "Step off 15cm box, land quietly absorbing force via hips & quads. Skip if knee > 1/10." }
+            ]
           },
           {
-            id: "ham_curl",
-            name: "Seated or Prone Hamstring Curl",
-            category: "posterior",
-            sets: 4,
-            reps: "10-12",
-            load: "Moderate-Heavy (RPE 8)",
-            cues: "Pre-fatigues hamstrings and warms knee joint capsule before squat patterns. 3s eccentric."
+            type: "standalone",
+            restSeconds: 120,
+            restNote: "Rest 2 mins between heavy sets",
+            exercises: [
+              { id: "hip_thrust", code: "2", name: "Barbell Hip Thrust", sets: 4, reps: "8-10", load: "Heavy Progressive", cues: "Vertical shins at top, chin tucked, zero anterior knee shear." }
+            ]
           },
           {
-            id: "hip_thrust",
-            name: "Barbell Hip Thrust",
-            category: "posterior",
-            sets: 4,
-            reps: "8-10",
-            load: "Heavy progressive load",
-            cues: "Chin tucked, ribs down, full glute lockout. Minimal anterior knee translation."
+            type: "superset",
+            label: "SUPERSET A — Hamstring Co-Contraction & Split Squat",
+            restBetweenExercises: "15s transition",
+            restAfterRoundSeconds: 90,
+            restNote: "Rest 90s after completing both A1 & A2",
+            exercises: [
+              { id: "ham_curl", code: "A1", name: "Seated or Prone Hamstring Curl", sets: 3, reps: "10-12", load: "Mod-Heavy (RPE 8)", cues: "Warms up knee joint capsule prior to unilateral squat. 3s eccentric." },
+              { id: "split_squat", code: "A2", name: "Vertical-Shin Split Squat / High Step-Up", sets: 3, reps: "8 each leg", load: "Light-Mod DBs", cues: "Slight torso lean forward to engage glutes and unload patella." }
+            ]
           },
           {
-            id: "split_squat",
-            name: "Vertical-Shin Rear-Foot Elevated Split Squat (or Step-Up)",
-            category: "quad_unilateral",
-            sets: 3,
-            reps: "8-10 each",
-            load: "Light-Mod DBs",
-            cues: "Slight forward torso lean to bias glute/quad co-contraction and reduce patellofemoral shear.",
-            kneeFlareAlt: { name: "45° Back Extension (Glute/Ham Bias)", sets: 3, reps: "12-15", load: "10-15kg Plate", cues: "Round upper back slightly, hinge strictly via hips." }
-          },
-          {
-            id: "calf_rdl_combo",
-            name: "Single-Leg Calf Raise + Bosu Balance Combo",
-            category: "rehab_acc",
-            sets: 3,
-            reps: "8 reps + 30s hold",
-            load: "Bodyweight / DB",
-            cues: "Every-second-day physio compliance block."
+            type: "standalone",
+            restSeconds: 60,
+            restNote: "Rest 60s between rounds",
+            exercises: [
+              { id: "calf_bosu", code: "3", name: "Single-Leg Calf Raise + Bosu Balance Hold", sets: 3, reps: "8 reps + 35s hold", load: "Bodyweight / DB", cues: "Every-second-day physio compliance." }
+            ]
           }
         ]
       },
 
-      UPPER_B: {
-        title: "Upper Hypertrophy + Low-Impact Conditioning",
-        subtitle: "Metabolic Output & Joint Decompression",
-        exercises: [
+      SWIM_COND: {
+        title: "Low-Impact Swim & Joint Decompression",
+        subtitle: "Colmslie Pool Protocol • Aerobic Deficit & Hydrostatic Flush",
+        aiNote: "Dedicated swim session.",
+        blocks: [
           {
-            id: "incline_press",
-            name: "Incline Dumbbell Press (30°)",
-            category: "upper_push",
-            sets: 4,
-            reps: "8-10",
-            load: "32.5kg - 37.5kg DBs",
-            cues: "Full stretch at bottom, avoid bouncing. Keep shoulder blades pinned."
+            type: "standalone",
+            restSeconds: 45,
+            restNote: "45s rest at wall as needed",
+            exercises: [
+              { id: "swim_warmup", code: "1", name: "Easy Freestyle + Pull Buoy Warmup", sets: 1, reps: "300m continuous", load: "Zone 2 Easy", cues: "Use pull buoy if knee feels stiff; focus on long stroke & bilateral breathing." }
+            ]
           },
           {
-            id: "pullups_pulldown",
-            name: "Neutral-Grip Pull-Ups or Lat Pulldown",
-            category: "upper_pull",
-            sets: 4,
-            reps: "8-10",
-            load: "Bodyweight / Heavy Stack",
-            cues: "Neutral grip protects elbow and shoulder joints."
+            type: "standalone",
+            restSeconds: 30,
+            restNote: "Rest 30s at wall between 100m repeats",
+            exercises: [
+              { id: "swim_main", code: "2", name: "Freestyle Aerobic Pace Repeats", sets: 6, reps: "100m repeats", load: "RPE 7.5 (Strong steady pace)", cues: "Flutter kick from hips (minimal aggressive knee whip). Avoid hard wall push-offs on surgical leg." }
+            ]
           },
           {
-            id: "lat_raise",
-            name: "Cable or DB Lateral Raises",
-            category: "upper_acc",
-            sets: 4,
-            reps: "12-15",
-            load: "Strict control",
-            cues: "Raise in scapular plane (30° forward). Pause 0.5s at shoulder height."
-          },
-          {
-            id: "tricep_bicep",
-            name: "Superset: Rope Tricep Pressdown + Hammer Curls",
-            category: "upper_acc",
-            sets: 3,
-            reps: "12-15",
-            load: "Moderate",
-            cues: "60s rest between supersets to keep heart rate elevated."
-          },
-          {
-            id: "cond_swim_bike",
-            name: "Low-Impact Conditioning Finisher (Swim or Stationary Bike)",
-            category: "conditioning",
-            sets: 1,
-            reps: "15-20 Mins",
-            load: "Zone 2 / Conversational",
-            cues: "Pool swim (pull-buoy if knee feels fatigued) or high-cadence / low-resistance bike spin for synovial fluid flush and caloric burn."
-          }
-        ]
-      },
-
-      FULL_REHAB_COND: {
-        title: "Fitstop / Athletic Conditioning + Physio Circuit",
-        subtitle: "Caloric Burn & Unilateral Control",
-        exercises: [
-          {
-            id: "physio_rdl",
-            name: "Physio Barbell RDL",
-            category: "posterior",
-            sets: 3,
-            reps: "8-10",
-            load: "Controlled tempo",
-            cues: "Every-second-day compliance check."
-          },
-          {
-            id: "landmine_rot",
-            name: "Half-Kneeling Landmine Press + Core Anti-Rotation",
-            category: "upper_push",
-            sets: 3,
-            reps: "10 each side",
-            load: "Moderate",
-            cues: "Builds golf-transferable trunk stability without rotational knee torque."
-          },
-          {
-            id: "erg_intervals",
-            name: "SkiErg or Seated Battle Ropes / Bike Intervals",
-            category: "conditioning",
-            sets: 5,
-            reps: "45s Work / 45s Rest",
-            load: "High Effort (Zero Impact)",
-            cues: "Drive heart rate for fat-loss deficit while keeping knee impact at zero."
-          },
-          {
-            id: "swim_flush",
-            name: "Optional Recovery Swim",
-            category: "conditioning",
-            sets: 1,
-            reps: "15-20 Mins",
-            load: "Easy pace",
-            cues: "Hydrostatic joint decompression."
+            type: "standalone",
+            restSeconds: 30,
+            restNote: "Easy flush",
+            exercises: [
+              { id: "swim_cool", code: "3", name: "Easy Pull / Backstroke Cooldown + Deep Water Walk", sets: 1, reps: "200m + 3 min walk", load: "Recovery", cues: "Gentle hydrostatic joint mobilization." }
+            ]
           }
         ]
       }
     };
 
-    // App State
-    let state = JSON.parse(localStorage.getItem('rhyd_workout_app_v1')) || {
-      selectedDays: ['Sun', 'Tue', 'Thu', 'Fri'],
+    // Load or initialize state
+    let state = JSON.parse(localStorage.getItem('rhyd_workout_v2')) || {
+      selectedDays: ['Tue', 'Thu', 'Fri', 'Sun'],
       activeDay: 'Sun',
-      dayContexts: {},
+      schedule: {},
       completedSets: {}
     };
 
     function saveState() {
-      localStorage.setItem('rhyd_workout_app_v1', JSON.stringify(state));
+      localStorage.setItem('rhyd_workout_v2', JSON.stringify(state));
+    }
+
+    function initDefaultScheduleIfEmpty() {
+      const order = ['UPPER_A', 'LOWER_B', 'SWIM_COND', 'LOWER_A', 'UPPER_A', 'SWIM_COND', 'LOWER_A'];
+      state.selectedDays.forEach((day, idx) => {
+        if (!state.schedule[day]) {
+          const tKey = day === 'Fri' ? 'SWIM_COND' : (day === 'Sun' ? 'LOWER_A' : order[idx % order.length]);
+          state.schedule[day] = JSON.parse(JSON.stringify(DEFAULT_TEMPLATES[tKey]));
+        }
+      });
+      if (!state.selectedDays.includes(state.activeDay)) {
+        state.activeDay = state.selectedDays[0] || 'Sun';
+      }
+      saveState();
+    }
+
+    function rebuildBaselineWeek() {
+      state.schedule = {};
+      initDefaultScheduleIfEmpty();
+      renderAll();
+    }
+
+    // API Key Management
+    function toggleApiModal() {
+      const modal = document.getElementById('apiModal');
+      modal.classList.toggle('hidden');
+      const existing = localStorage.getItem('rhyd_gemini_api_key') || '';
+      document.getElementById('apiKeyInput').value = existing;
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      if (!key) return alert("Please enter a valid Gemini API key.");
+      localStorage.setItem('rhyd_gemini_api_key', key);
+      document.getElementById('apiModal').classList.add('hidden');
+      updateApiKeyButtonState();
+    }
+
+    function updateApiKeyButtonState() {
+      const key = localStorage.getItem('rhyd_gemini_api_key');
+      const btn = document.getElementById('apiKeyBtn');
+      if (key) {
+        btn.innerText = "⚙️ Key Active";
+        btn.className = "text-xs bg-emerald-950/70 text-emerald-300 border border-emerald-800 px-2.5 py-1.5 rounded-lg font-medium";
+      }
+    }
+
+    function fillPrompt(text) {
+      document.getElementById('aiPromptInput').value = text;
+    }
+
+    // Direct Gemini API Integration for Natural Language Schedule Rebuilding
+    async function sendToGemini() {
+      const apiKey = localStorage.getItem('rhyd_gemini_api_key');
+      if (!apiKey) {
+        toggleApiModal();
+        alert("Please paste your Gemini API Key first so the app can communicate with Gemini.");
+        return;
+      }
+
+      const userPrompt = document.getElementById('aiPromptInput').value.trim();
+      if (!userPrompt) return;
+
+      const statusEl = document.getElementById('aiStatus');
+      const btnEl = document.getElementById('sendAiBtn');
+      statusEl.innerText = "Gemini Rebuilding...";
+      statusEl.className = "text-[11px] text-amber-400 font-mono animate-pulse";
+      btnEl.disabled = true;
+      btnEl.innerText = "...";
+
+      const systemInstruction = `
+You are the embedded strength, conditioning, and physiotherapy AI engine for Rhyd James (36yo male, Brisbane).
+CONTEXT & GUARDRAILS:
+- 11 months post-MACI knee cartilage surgery + history of ITB tightness and shoulder discomfort.
+- Goals: Lose 3-4kg body fat while retaining/building muscle mass.
+- Equipment & Benchmarks: Up to 40kg dumbbells for bench press, barbell back squats to a box, barbell RDLs (20kg+ bar or DBs), restricted-arc leg extensions, single-leg squats to box, single-leg calf raises, Bosu balance, landmine presses, half-kneeling single-arm lat pulldowns, swimming (freestyle/pull buoy, avoiding hard wall push-offs on surgical knee).
+- STRICT RULE: Knee discomfort must remain < 3/10. Never program high-impact plyometrics, deep uncontrolled knee flexion, or heavy open-chain full-ROM leg extensions.
+- SUPERSET FORMATTING RULE:
+  * When pairing exercises into supersets, create a block with "type": "superset", "label": "SUPERSET A — [Description]", "restBetweenExercises": "0-15s transition", "restAfterRoundSeconds": 90, "restNote": "Rest 90s after completing both A1 & A2", and place 2 exercises inside "exercises" with codes "A1" and "A2" (or "B1"/"B2").
+  * When an exercise should be done standalone with full rest, create a block with "type": "standalone", "restSeconds": 120, "restNote": "Rest 2 mins between straight sets", and place 1 exercise inside "exercises" with code "1", "2", etc.
+
+CURRENT APP STATE:
+- Currently viewing day: "${state.activeDay}"
+- Selected active days this week: ${JSON.stringify(state.selectedDays)}
+- Current full weekly schedule JSON: ${JSON.stringify(state.schedule)}
+
+USER REQUEST:
+"${userPrompt}"
+
+TASK:
+Return ONLY a valid JSON object matching this exact schema:
+{
+  "selectedDays": ["Tue", "Thu", ...],
+  "activeDay": "DayName",
+  "summaryNote": "1-sentence direct summary of what you changed and why.",
+  "schedule": {
+    "DayName": {
+      "title": "...",
+      "subtitle": "...",
+      "aiNote": "...",
+      "blocks": [
+        {
+          "type": "standalone" | "superset",
+          "label": "Optional label for superset (e.g. SUPERSET A — Push / Pull)",
+          "restBetweenExercises": "0s (only for superset)",
+          "restAfterRoundSeconds": 90,
+          "restSeconds": 120,
+          "restNote": "Clear rest instruction",
+          "exercises": [
+            {
+              "id": "unique_snake_case_id",
+              "code": "1 or A1 or A2",
+              "name": "Exercise Name",
+              "sets": 4,
+              "reps": "8-10",
+              "load": "Target Weight / RPE",
+              "cues": "Specific form & MACI knee safety cue"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+`;
+
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemInstruction }] }],
+            generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error ${response.status}`);
+        }
+
+        const data = await response.json();
+        const rawText = data.candidates[0].content.parts[0].text;
+        const parsed = JSON.parse(rawText);
+
+        if (parsed.selectedDays && parsed.schedule) {
+          state.selectedDays = parsed.selectedDays;
+          state.schedule = parsed.schedule;
+          if (parsed.activeDay && state.selectedDays.includes(parsed.activeDay)) {
+            state.activeDay = parsed.activeDay;
+          }
+          saveState();
+          renderAll();
+
+          const banner = document.getElementById('aiSummaryBanner');
+          banner.innerText = `✅ ${parsed.summaryNote || 'Schedule updated.'}`;
+          banner.classList.remove('hidden');
+          document.getElementById('aiPromptInput').value = '';
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Failed to update via Gemini. Check that your API key is valid and you have internet access.");
+      } finally {
+        statusEl.innerText = "Ready";
+        statusEl.className = "text-[11px] text-slate-400 font-mono";
+        btnEl.disabled = false;
+        btnEl.innerText = "Update";
+      }
     }
 
     function renderDaySelector() {
@@ -421,125 +495,45 @@
         btn.innerText = day;
         btn.onclick = () => {
           if (state.selectedDays.includes(day)) {
+            if (state.selectedDays.length === 1) return;
             state.selectedDays = state.selectedDays.filter(d => d !== day);
           } else {
-            // Keep chronological order starting Mon-Sun
             state.selectedDays.push(day);
             state.selectedDays.sort((a, b) => DAYS.indexOf(a) - DAYS.indexOf(b));
           }
-          document.getElementById('dayCountBadge').innerText = `${state.selectedDays.length} Days`;
-          renderDaySelector();
+          initDefaultScheduleIfEmpty();
+          renderAll();
         };
         container.appendChild(btn);
       });
       document.getElementById('dayCountBadge').innerText = `${state.selectedDays.length} Days`;
     }
 
-    // Assigns optimal templates based on how many days are selected
-    function getWorkoutOrder(numDays) {
-      if (numDays === 1) return ['LOWER_A'];
-      if (numDays === 2) return ['LOWER_A', 'UPPER_A'];
-      if (numDays === 3) return ['LOWER_A', 'UPPER_A', 'LOWER_B'];
-      if (numDays === 4) return ['LOWER_A', 'UPPER_A', 'LOWER_B', 'UPPER_B'];
-      return ['LOWER_A', 'UPPER_A', 'LOWER_B', 'UPPER_B', 'FULL_REHAB_COND', 'UPPER_A', 'FULL_REHAB_COND'].slice(0, numDays);
-    }
-
-    function generateSchedule() {
-      if (state.selectedDays.length === 0) {
-        alert("Select at least 1 training day for the week.");
-        return;
-      }
-      if (!state.selectedDays.includes(state.activeDay)) {
-        state.activeDay = state.selectedDays[0];
-      }
-      saveState();
-      renderWorkoutView();
-    }
-
-    function updateDayContext(val) {
-      state.dayContexts[state.activeDay] = val;
-      saveState();
-      renderWorkoutView();
-    }
-
-    function toggleSet(exerciseId, setIdx) {
-      const key = `${state.activeDay}_${exerciseId}_${setIdx}`;
+    function toggleSet(exId, setIdx, restSec) {
+      const key = `${state.activeDay}_${exId}_${setIdx}`;
       state.completedSets[key] = !state.completedSets[key];
       saveState();
-      renderWorkoutView();
-    }
-
-    function applyContextMod(exercise, context) {
-      let ex = JSON.parse(JSON.stringify(exercise));
-      ex.modNote = null;
-
-      if (context === 'knee_flare') {
-        if (ex.kneeFlareAlt) {
-          ex.name = ex.kneeFlareAlt.name;
-          ex.sets = ex.kneeFlareAlt.sets;
-          ex.reps = ex.kneeFlareAlt.reps;
-          ex.load = ex.kneeFlareAlt.load;
-          ex.cues = ex.kneeFlareAlt.cues;
-          ex.modNote = "🔄 Swapped to zero-shear alternative due to knee/ITB flare.";
-        } else if (ex.category === 'posterior') {
-          ex.sets = Math.max(2, ex.sets - 1);
-          ex.modNote = "⚠️ Keep knee angle strictly locked; stop 2 reps shy of failure.";
-        }
-      } else if (context === 'poor_sleep') {
-        ex.sets = Math.max(2, ex.sets - 1);
-        ex.load = ex.load.replace(/RPE [0-9.]+/g, "RPE 6.5 (Deloaded)");
-        ex.modNote = "💤 Volume reduced (-1 set) & RPE capped to manage high fatigue.";
-      } else if (context === 'sore_upper') {
-        if (ex.soreUpperAlt) {
-          ex.name = ex.soreUpperAlt.name;
-          ex.sets = ex.soreUpperAlt.sets;
-          ex.reps = ex.soreUpperAlt.reps;
-          ex.load = ex.soreUpperAlt.load;
-          ex.cues = ex.soreUpperAlt.cues;
-          ex.modNote = "🔄 Swapped to shoulder-friendly neutral angle.";
-        } else if (ex.category.startsWith('upper')) {
-          ex.sets = Math.max(2, ex.sets - 1);
-          ex.reps = "12-15 (Smooth Tempo)";
-          ex.modNote = "🟣 Shifted to lighter metabolic flush for recovery.";
-        }
-      } else if (context === 'push_harder') {
-        if (ex.category.startsWith('upper') || ex.category === 'posterior') {
-          ex.sets += 1;
-          ex.modNote = "🔥 +1 Working Set added (High Readiness). Push final set to RPE 9.";
-        } else {
-          ex.modNote = "🛡️ Graft Guardrail: Knee volume kept at baseline despite high energy.";
-        }
-      } else if (context === 'short_time') {
-        ex.sets = Math.max(2, ex.sets - 1);
-        ex.modNote = "⏱️ Express Mode: Rest strictly 60s or pair as antagonist superset.";
+      if (state.completedSets[key] && restSec) {
+        startTimer(restSec);
       }
-
-      return ex;
+      renderWorkoutView();
     }
 
     function renderWorkoutView() {
-      const container = document.getElementById('workoutContainer');
-      container.classList.remove('hidden');
-
-      // Render Tabs
       const tabsEl = document.getElementById('activeDayTabs');
       tabsEl.innerHTML = '';
-      const order = getWorkoutOrder(state.selectedDays.length);
 
-      state.selectedDays.forEach((day, idx) => {
-        const wKey = order[idx];
-        const wTemplate = WORKOUT_LIBRARY[wKey];
+      state.selectedDays.forEach(day => {
+        const dayPlan = state.schedule[day] || DEFAULT_TEMPLATES.LOWER_A;
         const isActive = day === state.activeDay;
-        const ctx = state.dayContexts[day] || 'baseline';
-        const dotColor = ctx === 'baseline' ? 'bg-sky-400' : (ctx === 'push_harder' ? 'bg-emerald-400' : 'bg-amber-400');
-
         const btn = document.createElement('button');
-        btn.className = `flex-shrink-0 px-3.5 py-2 rounded-lg text-xs font-bold border transition flex items-center space-x-2 ${
+        btn.className = `flex-shrink-0 px-3.5 py-2 rounded-lg text-xs font-bold border transition ${
           isActive
-            ? 'bg-slate-800 text-white border-sky-500 shadow'
+            ? 'bg-slate-800 text-white border-sky-400 shadow'
             : 'bg-slate-900/70 text-slate-400 border-slate-800'
         }`;
-        btn.innerHTML = `<span class="w-2 h-2 rounded-full ${dotColor}"></span><span>${day}: ${wTemplate.title.split(' ')[0]}</span>`;
+        const shortTag = dayPlan.title.split(' ')[0];
+        btn.innerText = `${day}: ${shortTag}`;
         btn.onclick = () => {
           state.activeDay = day;
           saveState();
@@ -548,96 +542,134 @@
         tabsEl.appendChild(btn);
       });
 
-      // Context Selector sync
-      const currentContext = state.dayContexts[state.activeDay] || 'baseline';
-      document.getElementById('contextSelect').value = currentContext;
-
-      const contextDescriptions = {
-        baseline: "Standard progressive overload. Follow prescribed 3s eccentrics and monitor knee response.",
-        knee_flare: "Compressive squat & open-chain extension loads removed. Pivoted to glute/hamstring activation, Spanish squat isometrics, and ITB relief.",
-        poor_sleep: "Working sets reduced by ~25% and intensity capped at RPE 6.5 to prevent systemic burnout and protect joint coordination.",
-        sore_upper: "Upper-body pressing angles modified to neutral/landmine planes with lighter pump volume.",
-        push_harder: "Added +1 working set to upper-body & posterior chain lifts. Knee-flexion volume remains strictly capped to protect MACI cartilage.",
-        short_time: "Trimmed accessory sets so you can finish in 35 minutes flat without skipping rehab essentials."
-      };
-      document.getElementById('contextExplanation').innerText = contextDescriptions[currentContext];
-      document.getElementById('activeModBadge').innerText = currentContext.replace('_', ' ').toUpperCase();
-
-      // Render Workout Cards
-      const activeIdx = state.selectedDays.indexOf(state.activeDay);
-      const activeTemplate = WORKOUT_LIBRARY[order[activeIdx]];
+      const activePlan = state.schedule[state.activeDay] || DEFAULT_TEMPLATES.LOWER_A;
       const stepsEl = document.getElementById('workoutSteps');
-      
-      let borderClass = "accent-border";
-      if (currentContext === 'knee_flare' || currentContext === 'poor_sleep') borderClass = "warn-border";
-      if (currentContext === 'push_harder') borderClass = "push-border";
 
       stepsEl.innerHTML = `
-        <div class="mb-3 px-1">
-          <h3 class="text-lg font-bold text-white">${state.activeDay} — ${activeTemplate.title}</h3>
-          <p class="text-xs text-slate-400">${activeTemplate.subtitle}</p>
+        <div class="px-1">
+          <h3 class="text-lg font-bold text-white">${state.activeDay} — ${activePlan.title}</h3>
+          <p class="text-xs text-slate-400">${activePlan.subtitle || ''}</p>
+          ${activePlan.aiNote ? `<p class="text-[11px] text-indigo-300 mt-1">💬 ${activePlan.aiNote}</p>` : ''}
         </div>
       `;
 
-      activeTemplate.exercises.forEach((rawEx, i) => {
-        const ex = applyContextMod(rawEx, currentContext);
-        
-        let setCheckboxes = '';
-        for (let s = 1; s <= ex.sets; s++) {
-          const checkKey = `${state.activeDay}_${ex.id}_${s}`;
-          const checked = state.completedSets[checkKey] ? 'checked' : '';
-          setCheckboxes += `
-            <label class="flex items-center space-x-1.5 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 cursor-pointer select-none">
-              <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s})" class="rounded bg-slate-950 border-slate-700 text-sky-500 h-4 w-4">
-              <span class="text-xs font-mono">Set ${s}</span>
-            </label>
-          `;
-        }
-
-        const card = document.createElement('div');
-        card.className = `card rounded-xl p-4 shadow ${borderClass}`;
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="text-xs font-mono text-sky-400">STEP 0${i + 1}</span>
-              <h4 class="text-base font-bold text-white mt-0.5">${ex.name}</h4>
+      activePlan.blocks.forEach((block, bIdx) => {
+        if (block.type === 'superset') {
+          // Render Linked Superset Container
+          const wrapper = document.createElement('div');
+          wrapper.className = "superset-wrapper rounded-xl p-4 shadow-lg";
+          
+          let innerHtml = `
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-indigo-500/30">
+              <div class="flex items-center space-x-2">
+                <span class="bg-indigo-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">🔗 Superset Pair</span>
+                <span class="text-xs font-bold text-indigo-200">${block.label || 'Superset Block'}</span>
+              </div>
+              <button onclick="startTimer(${block.restAfterRoundSeconds || 90})" class="text-[11px] bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-700 px-2 py-0.5 rounded font-mono">
+                ⏱️ ${block.restAfterRoundSeconds || 90}s Rest After Pair
+              </button>
             </div>
-            <div class="text-right">
+          `;
+
+          block.exercises.forEach((ex, exIdx) => {
+            const isLastInPair = exIdx === block.exercises.length - 1;
+            const autoRest = isLastInPair ? (block.restAfterRoundSeconds || 90) : 0;
+
+            let checkboxes = '';
+            for (let s = 1; s <= ex.sets; s++) {
+              const checkKey = `${state.activeDay}_${ex.id}_${s}`;
+              const checked = state.completedSets[checkKey] ? 'checked' : '';
+              checkboxes += `
+                <label class="flex items-center space-x-1.5 bg-slate-950/90 px-2.5 py-1.5 rounded border border-slate-800 cursor-pointer select-none">
+                  <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s}, ${autoRest})" class="rounded bg-slate-900 border-slate-700 text-indigo-500 h-4 w-4">
+                  <span class="text-xs font-mono">Set ${s}</span>
+                </label>
+              `;
+            }
+
+            innerHtml += `
+              <div class="bg-slate-900/90 rounded-lg p-3.5 border border-slate-800">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800">${ex.code || ('A' + (exIdx + 1))}</span>
+                    <h4 class="text-sm font-bold text-white mt-1.5">${ex.name}</h4>
+                  </div>
+                  <span class="text-xs font-bold bg-slate-800 text-slate-200 px-2.5 py-1 rounded border border-slate-700">${ex.sets} × ${ex.reps}</span>
+                </div>
+                <div class="mt-2 text-xs text-slate-300"><strong>Load:</strong> ${ex.load}</div>
+                <div class="mt-1 text-xs text-slate-400"><strong>Cue:</strong> ${ex.cues}</div>
+                <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap gap-2">${checkboxes}</div>
+              </div>
+              ${!isLastInPair ? `
+                <div class="flex items-center justify-center my-1.5">
+                  <div class="bg-indigo-950/90 border border-indigo-700/70 text-indigo-300 text-[11px] font-mono px-3 py-0.5 rounded-full">
+                    ⬇️ Immediately into next exercise (${block.restBetweenExercises || '0s rest'}) ⬇️
+                  </div>
+                </div>
+              ` : ''}
+            `;
+          });
+
+          innerHtml += `
+            <div class="mt-2.5 text-[11px] text-indigo-300 font-medium flex justify-between items-center px-1">
+              <span>🔄 ${block.restNote || 'Complete both exercises back-to-back before resting.'}</span>
+            </div>
+          `;
+
+          wrapper.innerHTML = innerHtml;
+          stepsEl.appendChild(wrapper);
+
+        } else {
+          // Render Standalone Straight-Set Card
+          const ex = block.exercises[0];
+          const restSec = block.restSeconds || 90;
+          let checkboxes = '';
+          for (let s = 1; s <= ex.sets; s++) {
+            const checkKey = `${state.activeDay}_${ex.id}_${s}`;
+            const checked = state.completedSets[checkKey] ? 'checked' : '';
+            checkboxes += `
+              <label class="flex items-center space-x-1.5 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 cursor-pointer select-none">
+                <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s}, ${restSec})" class="rounded bg-slate-950 border-slate-700 text-sky-500 h-4 w-4">
+                <span class="text-xs font-mono">Set ${s}</span>
+              </label>
+            `;
+          }
+
+          const card = document.createElement('div');
+          card.className = "standalone-card rounded-xl p-4 shadow";
+          card.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+              <span class="bg-sky-950 text-sky-400 border border-sky-800 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">⚡ Standalone Lift — Rest Between Every Set</span>
+              <button onclick="startTimer(${restSec})" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-2 py-0.5 rounded font-mono">
+                ⏱️ ${restSec}s Rest
+              </button>
+            </div>
+            <div class="flex justify-between items-start mt-1">
+              <div>
+                <h4 class="text-base font-bold text-white">${ex.name}</h4>
+              </div>
               <span class="text-xs font-bold bg-slate-800 text-slate-200 px-2.5 py-1 rounded border border-slate-700">${ex.sets} × ${ex.reps}</span>
             </div>
-          </div>
-          
-          <div class="mt-2 text-xs text-slate-300">
-            <strong>Target Load:</strong> ${ex.load}
-          </div>
-          <div class="mt-1 text-xs text-slate-400 leading-relaxed">
-            <strong>Coaching Cue:</strong> ${ex.cues}
-          </div>
-          ${ex.modNote ? `<div class="mt-2 text-xs font-semibold text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded">${ex.modNote}</div>` : ''}
-          
-          <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap gap-2">
-            ${setCheckboxes}
-          </div>
-        `;
-        stepsEl.appendChild(card);
+            <div class="mt-2 text-xs text-slate-300"><strong>Load:</strong> ${ex.load}</div>
+            <div class="mt-1 text-xs text-slate-400"><strong>Cue:</strong> ${ex.cues}</div>
+            <div class="mt-2 text-[11px] text-sky-400/90 font-mono">⏸️ ${block.restNote || `Rest ${restSec}s between each set`}</div>
+            <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap gap-2">${checkboxes}</div>
+          `;
+          stepsEl.appendChild(card);
+        }
       });
     }
 
-    function toggleSection(id) {
-      const el = document.getElementById(id);
-      el.classList.toggle('hidden');
-    }
-
-    function resetAllData() {
-      if (confirm("Reset all checked sets and context overrides for a fresh week?")) {
-        state.dayContexts = {};
+    function resetToDefaults() {
+      if (confirm("Reset the week back to your baseline schedule (including Friday Swim & Superset blocks)?")) {
+        state.schedule = {};
         state.completedSets = {};
-        saveState();
-        renderWorkoutView();
+        initDefaultScheduleIfEmpty();
+        renderAll();
       }
     }
 
-    // Rest Timer Logic
+    // Timer Logic
     let timerInterval = null;
     function startTimer(seconds) {
       clearInterval(timerInterval);
@@ -648,7 +680,7 @@
         updateTimerUI(remaining);
         if (remaining <= 0) {
           clearInterval(timerInterval);
-          document.getElementById('timerDisplay').innerText = "DONE";
+          document.getElementById('timerDisplay').innerText = "GO!";
         }
       }, 1000);
     }
@@ -664,9 +696,14 @@
       document.getElementById('timerDisplay').innerText = `${m}:${s}`;
     }
 
-    // Initialize on load
-    renderDaySelector();
-    generateSchedule();
+    function renderAll() {
+      updateApiKeyButtonState();
+      renderDaySelector();
+      renderWorkoutView();
+    }
+
+    initDefaultScheduleIfEmpty();
+    renderAll();
   </script>
 </body>
 </html>
