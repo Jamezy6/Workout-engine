@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Adaptive Rehab & Performance Engine v2</title>
+  <title>Adaptive Rehab & Performance Engine v2.2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #0b1120; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -23,7 +23,7 @@
       <div>
         <div class="flex items-center space-x-2">
           <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400 bg-sky-950/70 px-2.5 py-0.5 rounded border border-sky-800">10-Mo Post-MACI</span>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/70 px-2.5 py-0.5 rounded border border-indigo-800">Gemini Live v2</span>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/70 px-2.5 py-0.5 rounded border border-emerald-800">Gemini v2.2 Auto-Route</span>
         </div>
         <h1 class="text-2xl font-bold mt-1.5 tracking-tight">Adaptive Training Engine</h1>
       </div>
@@ -47,7 +47,7 @@
       <h3 class="text-sm font-bold text-sky-400">Gemini API Key Configuration</h3>
       <button onclick="toggleApiModal()" class="text-xs text-slate-400">✕ Close</button>
     </div>
-    <p class="text-xs text-slate-400 mb-3">Stored strictly in your device's private browser storage (`localStorage`). Never shared or uploaded.</p>
+    <p class="text-xs text-slate-400 mb-3">Paste your key from Google AI Studio (starts with <code>AIza...</code>). Stored locally on your device.</p>
     <div class="flex space-x-2">
       <input type="password" id="apiKeyInput" placeholder="Paste AIzaSy... key here" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
       <button onclick="saveApiKey()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs">Save Key</button>
@@ -79,19 +79,20 @@
     <!-- Quick-Action Feedback Chips -->
     <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-2.5">
       <button onclick="fillPrompt('Rebuild today\'s workout to include antagonist supersets where safe, keeping heavy axial lifts standalone.')" class="flex-shrink-0 text-[11px] bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 px-2.5 py-1 rounded-full">🔗 Supersets Today</button>
-      <button onclick="fillPrompt('Change Friday to just a 40-minute low-impact swim session (warmup, main intervals, cooldown) and adjust the rest of the week.')" class="flex-shrink-0 text-[11px] bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-800 px-2.5 py-1 rounded-full">🏊‍♂️ Swim Only on Friday</button>
+      <button onclick="fillPrompt('Change Friday to just a 40-minute low-impact swim session (warmup, main intervals, cooldown).')" class="flex-shrink-0 text-[11px] bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-800 px-2.5 py-1 rounded-full">🏊‍♂️ Swim Only on Friday</button>
       <button onclick="fillPrompt('My knee feels slightly stiff today (2.5/10). Swap today\'s high-shear knee exercises for zero-shear glute/posterior alternatives and Spanish squats.')" class="flex-shrink-0 text-[11px] bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-800 px-2.5 py-1 rounded-full">🟠 Knee Stiff Today</button>
       <button onclick="fillPrompt('I slept poorly (<6 hours). Cut today\'s volume by 25%, lower RPE targets, and pair accessories into quick supersets.')" class="flex-shrink-0 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full">💤 Poor Sleep Deload</button>
       <button onclick="fillPrompt('I feel great today and want to push harder. Add volume/intensity to upper body or posterior chain without exceeding MACI knee limits.')" class="flex-shrink-0 text-[11px] bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 px-2.5 py-1 rounded-full">🔥 Push Harder Today</button>
     </div>
 
     <div class="flex space-x-2">
-      <textarea id="aiPromptInput" rows="2" placeholder="e.g., 'Make Friday just a swim, and convert Tuesday into supersets...'" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 resize-none"></textarea>
+      <textarea id="aiPromptInput" rows="2" placeholder="e.g., 'Make Friday just a swim, or convert today into supersets...'" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 resize-none"></textarea>
       <button onclick="sendToGemini()" id="sendAiBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 rounded-lg text-xs transition flex items-center justify-center">
         Update
       </button>
     </div>
     <div id="aiSummaryBanner" class="hidden mt-2.5 p-2.5 rounded-lg bg-indigo-950/50 border border-indigo-800/70 text-xs text-indigo-200"></div>
+    <div id="aiErrorBanner" class="hidden mt-2.5 p-2.5 rounded-lg bg-red-950/60 border border-red-800 text-xs text-red-200 font-mono break-words"></div>
   </section>
 
   <!-- Active Day Tabs -->
@@ -137,7 +138,6 @@
   <script>
     const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    // Default block-based templates supporting both 'standalone' and 'superset' blocks
     const DEFAULT_TEMPLATES = {
       LOWER_A: {
         title: "Lower Body Strength + Graft Load A",
@@ -302,7 +302,6 @@
       }
     };
 
-    // Load or initialize state
     let state = JSON.parse(localStorage.getItem('rhyd_workout_v2')) || {
       selectedDays: ['Tue', 'Thu', 'Fri', 'Sun'],
       activeDay: 'Sun',
@@ -334,7 +333,6 @@
       renderAll();
     }
 
-    // API Key Management
     function toggleApiModal() {
       const modal = document.getElementById('apiModal');
       modal.classList.toggle('hidden');
@@ -343,9 +341,10 @@
     }
 
     function saveApiKey() {
-      const key = document.getElementById('apiKeyInput').value.trim();
+      const key = document.getElementById('apiKeyInput').value.replace(/\s+/g, '');
       if (!key) return alert("Please enter a valid Gemini API key.");
       localStorage.setItem('rhyd_gemini_api_key', key);
+      localStorage.removeItem('rhyd_cached_model');
       document.getElementById('apiModal').classList.add('hidden');
       updateApiKeyButtonState();
     }
@@ -363,12 +362,83 @@
       document.getElementById('aiPromptInput').value = text;
     }
 
-    // Direct Gemini API Integration for Natural Language Schedule Rebuilding
+    // Dynamically queries Google's ListModels API so 404 model-not-found errors cannot happen
+    async function discoverAvailableModels(apiKey) {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error?.message || `ListModels HTTP ${res.status}`);
+      }
+      const supported = (data.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+        .map(m => m.name.replace('models/', ''))
+        .filter(name => name.startsWith('gemini-') && !name.includes('vision') && !name.includes('embedding') && !name.includes('tts') && !name.includes('image'));
+
+      // Prioritize fastest modern Flash models first, then Pro models
+      supported.sort((a, b) => {
+        const score = (n) => {
+          if (n.includes('2.5-flash') && !n.includes('lite')) return 100;
+          if (n.includes('2.0-flash') && !n.includes('lite')) return 90;
+          if (n.includes('flash')) return 80;
+          if (n.includes('pro')) return 70;
+          return 50;
+        };
+        return score(b) - score(a);
+      });
+
+      if (supported.length === 0) {
+        throw new Error("No text generation models enabled for this API key.");
+      }
+      return supported;
+    }
+
+    async function callGeminiAutoRoute(apiKey, promptText) {
+      const models = await discoverAvailableModels(apiKey);
+      let lastError = null;
+
+      for (const model of models.slice(0, 4)) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }],
+              generationConfig: {
+                responseMimeType: "application/json",
+                temperature: 0.25
+              }
+            })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            lastError = new Error(`[${model}] ${data?.error?.message || response.status}`);
+            continue;
+          }
+
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawText) {
+            lastError = new Error(`[${model}] Empty response.`);
+            continue;
+          }
+
+          const cleaned = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
+          const parsed = JSON.parse(cleaned);
+          parsed._modelUsed = model;
+          return parsed;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError || new Error("Failed across all discovered Gemini models.");
+    }
+
     async function sendToGemini() {
-      const apiKey = localStorage.getItem('rhyd_gemini_api_key');
+      const rawKey = localStorage.getItem('rhyd_gemini_api_key') || '';
+      const apiKey = rawKey.replace(/\s+/g, '');
       if (!apiKey) {
         toggleApiModal();
-        alert("Please paste your Gemini API Key first so the app can communicate with Gemini.");
+        alert("Please paste your Gemini API Key first.");
         return;
       }
 
@@ -377,58 +447,95 @@
 
       const statusEl = document.getElementById('aiStatus');
       const btnEl = document.getElementById('sendAiBtn');
-      statusEl.innerText = "Gemini Rebuilding...";
+      const errBanner = document.getElementById('aiErrorBanner');
+      const sumBanner = document.getElementById('aiSummaryBanner');
+      
+      errBanner.classList.add('hidden');
+      sumBanner.classList.add('hidden');
+      statusEl.innerText = "Routing & Rebuilding...";
       statusEl.className = "text-[11px] text-amber-400 font-mono animate-pulse";
       btnEl.disabled = true;
       btnEl.innerText = "...";
 
-      const systemInstruction = `
-You are the embedded strength, conditioning, and physiotherapy AI engine for Rhyd James (36yo male, Brisbane).
-CONTEXT & GUARDRAILS:
-- 11 months post-MACI knee cartilage surgery + history of ITB tightness and shoulder discomfort.
-- Goals: Lose 3-4kg body fat while retaining/building muscle mass.
-- Equipment & Benchmarks: Up to 40kg dumbbells for bench press, barbell back squats to a box, barbell RDLs (20kg+ bar or DBs), restricted-arc leg extensions, single-leg squats to box, single-leg calf raises, Bosu balance, landmine presses, half-kneeling single-arm lat pulldowns, swimming (freestyle/pull buoy, avoiding hard wall push-offs on surgical knee).
-- STRICT RULE: Knee discomfort must remain < 3/10. Never program high-impact plyometrics, deep uncontrolled knee flexion, or heavy open-chain full-ROM leg extensions.
-- SUPERSET FORMATTING RULE:
-  * When pairing exercises into supersets, create a block with "type": "superset", "label": "SUPERSET A — [Description]", "restBetweenExercises": "0-15s transition", "restAfterRoundSeconds": 90, "restNote": "Rest 90s after completing both A1 & A2", and place 2 exercises inside "exercises" with codes "A1" and "A2" (or "B1"/"B2").
-  * When an exercise should be done standalone with full rest, create a block with "type": "standalone", "restSeconds": 120, "restNote": "Rest 2 mins between straight sets", and place 1 exercise inside "exercises" with code "1", "2", etc.
+      const weekOverview = {};
+      state.selectedDays.forEach(d => {
+        weekOverview[d] = state.schedule[d] ? state.schedule[d].title : "Unassigned";
+      });
 
-CURRENT APP STATE:
+      const systemInstruction = `
+You are the strength, conditioning, and physiotherapy AI engine for Rhyd James (36yo male, Brisbane).
+CONTEXT & GUARDRAILS:
+- 10 months post-MACI knee cartilage surgery + history of ITB tightness and shoulder discomfort.
+- Goals: Lose 3-4kg body fat while retaining/building muscle mass.
+- Equipment & Benchmarks: Up to 40kg DBs for bench press, barbell back squats to a box, barbell RDLs (20kg+ bar or DBs), restricted-arc leg extensions, single-leg squats to box, single-leg calf raises, Bosu balance, landmine presses, half-kneeling single-arm lat pulldowns, swimming (freestyle/pull buoy, avoiding hard wall push-offs on surgical knee).
+- STRICT RULE: Knee discomfort < 3/10. No high-impact plyos or deep uncontrolled knee shear.
+- SUPERSET vs STANDALONE RULES:
+  * For supersets: use "type": "superset", "label": "SUPERSET A — [Name]", "restBetweenExercises": "0-15s transition", "restAfterRoundSeconds": 90, "restNote": "Rest 90s after completing both A1 & A2", and put 2 exercises in "exercises" with codes "A1" and "A2" (or "B1", "B2").
+  * For standalone lifts: use "type": "standalone", "restSeconds": 120, "restNote": "Rest 2 mins between straight sets", and put 1 exercise in "exercises" with code "1", "2", etc.
+
+CURRENT STATE:
 - Currently viewing day: "${state.activeDay}"
-- Selected active days this week: ${JSON.stringify(state.selectedDays)}
-- Current full weekly schedule JSON: ${JSON.stringify(state.schedule)}
+- Active training days this week: ${JSON.stringify(state.selectedDays)}
+- Week overview: ${JSON.stringify(weekOverview)}
+- Current "${state.activeDay}" workout detail: ${JSON.stringify(state.schedule[state.activeDay])}
 
 USER REQUEST:
 "${userPrompt}"
 
 TASK:
-Return ONLY a valid JSON object matching this exact schema:
+Return ONLY a valid JSON object containing ONLY the day(s) that need to be modified or added in "updatedDays".
+
+EXACT JSON SCHEMA REQUIRED:
 {
-  "selectedDays": ["Tue", "Thu", ...],
-  "activeDay": "DayName",
-  "summaryNote": "1-sentence direct summary of what you changed and why.",
-  "schedule": {
+  "selectedDays": ["Tue", "Thu", "Fri", "Sun"],
+  "activeDay": "DayNameToFocusOnAfterUpdate",
+  "summaryNote": "1-sentence direct summary of what changed.",
+  "updatedDays": {
     "DayName": {
-      "title": "...",
-      "subtitle": "...",
-      "aiNote": "...",
+      "title": "Workout Title",
+      "subtitle": "Workout Subtitle",
+      "aiNote": "Short coaching note on today's setup",
       "blocks": [
         {
-          "type": "standalone" | "superset",
-          "label": "Optional label for superset (e.g. SUPERSET A — Push / Pull)",
-          "restBetweenExercises": "0s (only for superset)",
-          "restAfterRoundSeconds": 90,
+          "type": "standalone",
           "restSeconds": 120,
-          "restNote": "Clear rest instruction",
+          "restNote": "Rest 2 mins between sets",
           "exercises": [
             {
-              "id": "unique_snake_case_id",
-              "code": "1 or A1 or A2",
+              "id": "ex_1",
+              "code": "1",
               "name": "Exercise Name",
               "sets": 4,
               "reps": "8-10",
-              "load": "Target Weight / RPE",
-              "cues": "Specific form & MACI knee safety cue"
+              "load": "Target Load / RPE",
+              "cues": "Form & MACI knee safety cue"
+            }
+          ]
+        },
+        {
+          "type": "superset",
+          "label": "SUPERSET A — Antagonist Pair",
+          "restBetweenExercises": "0-15s",
+          "restAfterRoundSeconds": 90,
+          "restNote": "Rest 90s after completing both A1 & A2",
+          "exercises": [
+            {
+              "id": "ex_a1",
+              "code": "A1",
+              "name": "First Exercise",
+              "sets": 3,
+              "reps": "10-12",
+              "load": "Load",
+              "cues": "Cue"
+            },
+            {
+              "id": "ex_a2",
+              "code": "A2",
+              "name": "Second Exercise",
+              "sets": 3,
+              "reps": "10-12",
+              "load": "Load",
+              "cues": "Cue"
             }
           ]
         }
@@ -439,40 +546,35 @@ Return ONLY a valid JSON object matching this exact schema:
 `;
 
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: systemInstruction }] }],
-            generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
-          })
-        });
+        const parsed = await callGeminiAutoRoute(apiKey, systemInstruction);
 
-        if (!response.ok) {
-          throw new Error(`API Error ${response.status}`);
+        if (parsed.selectedDays && Array.isArray(parsed.selectedDays)) {
+          state.selectedDays = parsed.selectedDays.sort((a, b) => DAYS.indexOf(a) - DAYS.indexOf(b));
+        }
+        if (parsed.updatedDays && typeof parsed.updatedDays === 'object') {
+          Object.keys(parsed.updatedDays).forEach(dayKey => {
+            state.schedule[dayKey] = parsed.updatedDays[dayKey];
+            if (!state.selectedDays.includes(dayKey) && DAYS.includes(dayKey)) {
+              state.selectedDays.push(dayKey);
+              state.selectedDays.sort((a, b) => DAYS.indexOf(a) - DAYS.indexOf(b));
+            }
+          });
+        }
+        if (parsed.activeDay && state.selectedDays.includes(parsed.activeDay)) {
+          state.activeDay = parsed.activeDay;
         }
 
-        const data = await response.json();
-        const rawText = data.candidates[0].content.parts[0].text;
-        const parsed = JSON.parse(rawText);
+        initDefaultScheduleIfEmpty();
+        saveState();
+        renderAll();
 
-        if (parsed.selectedDays && parsed.schedule) {
-          state.selectedDays = parsed.selectedDays;
-          state.schedule = parsed.schedule;
-          if (parsed.activeDay && state.selectedDays.includes(parsed.activeDay)) {
-            state.activeDay = parsed.activeDay;
-          }
-          saveState();
-          renderAll();
-
-          const banner = document.getElementById('aiSummaryBanner');
-          banner.innerText = `✅ ${parsed.summaryNote || 'Schedule updated.'}`;
-          banner.classList.remove('hidden');
-          document.getElementById('aiPromptInput').value = '';
-        }
+        sumBanner.innerText = `✅ [${parsed._modelUsed}] ${parsed.summaryNote || 'Schedule updated.'}`;
+        sumBanner.classList.remove('hidden');
+        document.getElementById('aiPromptInput').value = '';
       } catch (err) {
-        console.error(err);
-        alert("Failed to update via Gemini. Check that your API key is valid and you have internet access.");
+        console.error("Gemini Error:", err);
+        errBanner.innerText = `⚠️ Diagnostic Error: ${err.message}`;
+        errBanner.classList.remove('hidden');
       } finally {
         statusEl.innerText = "Ready";
         statusEl.className = "text-[11px] text-slate-400 font-mono";
@@ -553,9 +655,8 @@ Return ONLY a valid JSON object matching this exact schema:
         </div>
       `;
 
-      activePlan.blocks.forEach((block, bIdx) => {
+      (activePlan.blocks || []).forEach((block) => {
         if (block.type === 'superset') {
-          // Render Linked Superset Container
           const wrapper = document.createElement('div');
           wrapper.className = "superset-wrapper rounded-xl p-4 shadow-lg";
           
@@ -571,7 +672,7 @@ Return ONLY a valid JSON object matching this exact schema:
             </div>
           `;
 
-          block.exercises.forEach((ex, exIdx) => {
+          (block.exercises || []).forEach((ex, exIdx) => {
             const isLastInPair = exIdx === block.exercises.length - 1;
             const autoRest = isLastInPair ? (block.restAfterRoundSeconds || 90) : 0;
 
@@ -619,8 +720,7 @@ Return ONLY a valid JSON object matching this exact schema:
           wrapper.innerHTML = innerHtml;
           stepsEl.appendChild(wrapper);
 
-        } else {
-          // Render Standalone Straight-Set Card
+        } else if (block.exercises && block.exercises[0]) {
           const ex = block.exercises[0];
           const restSec = block.restSeconds || 90;
           let checkboxes = '';
@@ -669,7 +769,6 @@ Return ONLY a valid JSON object matching this exact schema:
       }
     }
 
-    // Timer Logic
     let timerInterval = null;
     function startTimer(seconds) {
       clearInterval(timerInterval);
