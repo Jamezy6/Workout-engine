@@ -3,348 +3,530 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Adaptive Rehab & Performance Engine v2.2</title>
+  <title>Training Engine v3.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
   <style>
-    body { background-color: #0b1120; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    .card { background-color: #1e293b; border: 1px solid #334155; }
-    .standalone-card { background-color: #1e293b; border: 1px solid #334155; border-left: 4px solid #38bdf8; }
-    .superset-wrapper { background: linear-gradient(180deg, rgba(49, 46, 129, 0.28) 0%, rgba(30, 41, 59, 0.75) 100%); border: 1.5px solid #6366f1; }
-    input[type="checkbox"]:checked + span { text-decoration: line-through; color: #64748b; }
-    ::-webkit-scrollbar { height: 4px; width: 4px; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    :root {
+      --g-blue: #1a73e8;
+      --g-blue-hover: #1557b0;
+      --g-blue-soft: #e8f0fe;
+      --g-green: #1e8e3e;
+      --g-green-soft: #e6f4ea;
+      --g-yellow: #f9ab00;
+      --g-yellow-soft: #fef7e0;
+      --g-red: #d93025;
+      --g-red-soft: #fce8e6;
+      --g-surface: #f8f9fa;
+      --g-border: #dadce0;
+      --g-text: #202124;
+      --g-subtext: #5f6368;
+    }
+    body {
+      background-color: var(--g-surface);
+      color: var(--g-text);
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono {
+      font-family: 'Roboto Mono', monospace;
+    }
+    .g-card {
+      background-color: #ffffff;
+      border: 1px solid var(--g-border);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.06), 0 1px 3px 1px rgba(60,64,67,0.04);
+    }
+    .standalone-card {
+      background-color: #ffffff;
+      border: 1px solid var(--g-border);
+      border-left: 5px solid var(--g-blue);
+      border-radius: 16px;
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.06);
+    }
+    .superset-wrapper {
+      background-color: #f4f7fe;
+      border: 1.5px solid #8ab4f8;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px 0 rgba(26,115,232,0.08);
+    }
+    input[type="checkbox"]:checked + span {
+      text-decoration: line-through;
+      color: #9aa0a6;
+    }
+    ::-webkit-scrollbar { height: 5px; width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 8px; }
   </style>
 </head>
-<body class="pb-28 max-w-2xl mx-auto px-4 pt-5">
+<body class="pb-32 max-w-2xl mx-auto px-4 pt-5">
 
-  <!-- Header -->
+  <!-- Google Material 3 Header -->
   <header class="mb-5">
     <div class="flex justify-between items-start">
       <div>
         <div class="flex items-center space-x-2">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400 bg-sky-950/70 px-2.5 py-0.5 rounded border border-sky-800">10-Mo Post-MACI</span>
-          <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/70 px-2.5 py-0.5 rounded border border-emerald-800">Gemini v2.2 Auto-Route</span>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#e8f0fe] text-[#1a73e8]">
+            <span class="w-2 h-2 rounded-full bg-[#1a73e8] mr-1.5"></span>11-Mo Post-MACI
+          </span>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#e6f4ea] text-[#1e8e3e]">
+            Gemini v3.0
+          </span>
         </div>
-        <h1 class="text-2xl font-bold mt-1.5 tracking-tight">Adaptive Training Engine</h1>
+        <h1 class="text-2xl font-extrabold text-[#202124] mt-1.5 tracking-tight">Personal Training Engine</h1>
+        <p class="text-xs text-[#5f6368] mt-0.5">Full-Week Science-Backed Periodization • Time-Budgeted</p>
       </div>
-      <div class="flex space-x-1.5">
-        <button onclick="toggleApiModal()" id="apiKeyBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg font-medium">⚙️ API Key</button>
-        <button onclick="resetToDefaults()" class="text-xs text-slate-400 hover:text-red-400 border border-slate-800 px-2.5 py-1.5 rounded-lg">Reset</button>
-      </div>
-    </div>
 
-    <div class="mt-3 p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
-      <div>
-        <span class="font-semibold text-amber-400">Graft Guardrail:</span> Knee discomfort <span class="underline">strictly &lt; 3/10</span> (0/10 next AM).
+      <div class="flex space-x-1.5">
+        <button onclick="toggleModal('profileModal')" class="text-xs bg-white hover:bg-gray-50 text-[#202124] border border-[#dadce0] px-3 py-1.5 rounded-full font-medium shadow-sm flex items-center space-x-1">
+          <span>👤</span><span>Profile & Rehab</span>
+        </button>
+        <button onclick="toggleModal('apiModal')" id="apiKeyBtn" class="text-xs bg-white hover:bg-gray-50 text-[#202124] border border-[#dadce0] px-3 py-1.5 rounded-full font-medium shadow-sm">
+          🔑 API Key
+        </button>
       </div>
-      <span class="text-slate-400 font-mono">3-1-1 Tempo</span>
     </div>
   </header>
 
-  <!-- API Key Setup Modal -->
-  <div id="apiModal" class="hidden card rounded-xl p-4 mb-5 border-sky-500 shadow-xl">
+  <!-- MODAL 1: API Key Configuration -->
+  <div id="apiModal" class="hidden g-card p-4 mb-5 border-2 border-[#1a73e8]">
     <div class="flex justify-between items-center mb-2">
-      <h3 class="text-sm font-bold text-sky-400">Gemini API Key Configuration</h3>
-      <button onclick="toggleApiModal()" class="text-xs text-slate-400">✕ Close</button>
+      <h3 class="text-sm font-bold text-[#1a73e8]">Google AI Studio API Key</h3>
+      <button onclick="toggleModal('apiModal')" class="text-xs text-[#5f6368] font-bold px-2 py-1">✕</button>
     </div>
-    <p class="text-xs text-slate-400 mb-3">Paste your key from Google AI Studio (starts with <code>AIza...</code>). Stored locally on your device.</p>
+    <p class="text-xs text-[#5f6368] mb-3">Stored strictly in your browser (`localStorage`). Never uploaded to GitHub.</p>
     <div class="flex space-x-2">
-      <input type="password" id="apiKeyInput" placeholder="Paste AIzaSy... key here" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
-      <button onclick="saveApiKey()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs">Save Key</button>
+      <input type="password" id="apiKeyInput" placeholder="Paste AIzaSy... key here" class="flex-1 bg-[#f8f9fa] border border-[#dadce0] rounded-lg px-3 py-2 text-xs text-[#202124] focus:outline-none focus:border-[#1a73e8]">
+      <button onclick="saveApiKey()" class="bg-[#1a73e8] hover:bg-[#1557b0] text-white font-semibold px-4 py-2 rounded-lg text-xs transition">Save Key</button>
     </div>
   </div>
 
-  <!-- STEP 1: Weekly Day Selector -->
-  <section class="card rounded-xl p-4 mb-4 shadow">
-    <div class="flex justify-between items-center mb-2.5">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">1. Active Training Days This Week</h2>
-      <span id="dayCountBadge" class="text-xs bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-mono">0 Days</span>
+  <!-- MODAL 2: Persistent Athlete Context, Warmup & Weight Memory -->
+  <div id="profileModal" class="hidden g-card p-5 mb-5 border-2 border-[#1a73e8]">
+    <div class="flex justify-between items-center mb-3 pb-2 border-b border-[#dadce0]">
+      <div>
+        <h3 class="text-base font-bold text-[#202124]">Persistent Athlete Profile & Context</h3>
+        <p class="text-xs text-[#5f6368]">Saved permanently in memory. Injected into every Gemini workout build.</p>
+      </div>
+      <button onclick="toggleModal('profileModal')" class="text-xs bg-gray-100 hover:bg-gray-200 text-[#202124] font-bold px-2.5 py-1 rounded-full">✕ Close</button>
     </div>
-    <div class="grid grid-cols-7 gap-1.5 mb-3" id="daySelector"></div>
-    <button onclick="rebuildBaselineWeek()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-semibold py-2 rounded-lg text-xs transition">
-      Re-Assign Default Templates to Selected Days
-    </button>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] mb-1">Health, Rehab & Training Goals Context</label>
+        <textarea id="healthContextInput" rows="4" class="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-xl p-3 text-xs text-[#202124] focus:outline-none focus:border-[#1a73e8] leading-relaxed"></textarea>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368]">Editable Pre-Session Warm-up & Rehab (One item per line)</label>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-xs text-[#5f6368]">Warmup Time:</span>
+            <select id="warmupMinsInput" class="bg-[#f8f9fa] border border-[#dadce0] rounded px-2 py-0.5 text-xs font-semibold">
+              <option value="5">5 mins</option>
+              <option value="8">8 mins</option>
+              <option value="10">10 mins</option>
+              <option value="12">12 mins</option>
+            </select>
+          </div>
+        </div>
+        <textarea id="warmupListInput" rows="4" class="w-full bg-[#f8f9fa] border border-[#dadce0] rounded-xl p-3 text-xs text-[#202124] focus:outline-none focus:border-[#1a73e8] leading-relaxed"></textarea>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368]">Logged Exercise Weights Memory</label>
+          <button onclick="clearWeightHistory()" class="text-[11px] text-[#d93025] hover:underline">Clear Weight Log</button>
+        </div>
+        <div id="weightHistorySummary" class="bg-[#f8f9fa] border border-[#dadce0] rounded-xl p-2.5 text-xs text-[#5f6368] max-h-28 overflow-y-auto font-mono"></div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2">
+        <button onclick="saveProfileContext()" class="bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold px-5 py-2 rounded-full text-xs shadow-sm transition">
+          Save Profile & Warmup to Memory
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Sunday Weekly Planner & Mid-Week Lock Controls -->
+  <section class="g-card p-4 mb-4">
+    <div class="flex justify-between items-center mb-3">
+      <div>
+        <h2 class="text-sm font-bold text-[#202124] flex items-center space-x-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#1a73e8]"></span>
+          <span>1. Weekly Planner (Mon–Sun)</span>
+        </h2>
+        <p class="text-[11px] text-[#5f6368]">Set active days, total duration (incl. warmup), modality & lock completed days</p>
+      </div>
+      <span id="activeSummaryBadge" class="text-xs font-semibold bg-[#e8f0fe] text-[#1a73e8] px-2.5 py-1 rounded-full">4 Days</span>
+    </div>
+
+    <!-- 7-Day Interactive Grid -->
+    <div id="weeklyPlannerGrid" class="space-y-2 mb-3.5"></div>
+
+    <!-- Primary Generation Actions -->
+    <div class="flex space-x-2">
+      <button onclick="generateOrRebalanceWeek('Rebuild all UNLOCKED active days for the week using optimal muscle group recovery spacing, adhering strictly to each day\'s total duration and modality while respecting LOCKED days.')" id="buildWeekBtn" class="flex-1 bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold py-2.5 px-4 rounded-full text-xs shadow-sm transition flex items-center justify-center space-x-1.5">
+        <span>✨</span>
+        <span>Generate / Rebalance Unlocked Week (Gemini)</span>
+      </button>
+      <button onclick="resetWeekLocksAndChecks()" title="Unlocks all days and clears checkboxes for a new week" class="bg-[#f8f9fa] hover:bg-gray-200 text-[#5f6368] border border-[#dadce0] font-semibold py-2.5 px-3.5 rounded-full text-xs transition">
+        New Week
+      </button>
+    </div>
   </section>
 
-  <!-- STEP 2: Gemini Natural Language Co-Pilot -->
-  <section class="card rounded-xl p-4 mb-5 border-indigo-500/50 shadow-lg">
+  <!-- SECTION 2: Mid-Week Co-Pilot & Instant Context Overrides -->
+  <section class="g-card p-4 mb-5">
     <div class="flex justify-between items-center mb-2">
-      <div class="flex items-center space-x-2">
-        <span class="text-sm">✨</span>
-        <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-300">2. Talk to Your Schedule (Gemini Co-Pilot)</h2>
+      <div class="flex items-center space-x-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#f9ab00]"></span>
+        <h2 class="text-sm font-bold text-[#202124]">2. Mid-Week Trainer Co-Pilot</h2>
       </div>
-      <span id="aiStatus" class="text-[11px] text-slate-400 font-mono">Ready</span>
+      <span id="aiStatus" class="text-[11px] text-[#5f6368] font-mono">Ready</span>
     </div>
 
-    <!-- Quick-Action Feedback Chips -->
-    <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-2.5">
-      <button onclick="fillPrompt('Rebuild today\'s workout to include antagonist supersets where safe, keeping heavy axial lifts standalone.')" class="flex-shrink-0 text-[11px] bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 px-2.5 py-1 rounded-full">🔗 Supersets Today</button>
-      <button onclick="fillPrompt('Change Friday to just a 40-minute low-impact swim session (warmup, main intervals, cooldown).')" class="flex-shrink-0 text-[11px] bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-800 px-2.5 py-1 rounded-full">🏊‍♂️ Swim Only on Friday</button>
-      <button onclick="fillPrompt('My knee feels slightly stiff today (2.5/10). Swap today\'s high-shear knee exercises for zero-shear glute/posterior alternatives and Spanish squats.')" class="flex-shrink-0 text-[11px] bg-amber-950/80 hover:bg-amber-900 text-amber-200 border border-amber-800 px-2.5 py-1 rounded-full">🟠 Knee Stiff Today</button>
-      <button onclick="fillPrompt('I slept poorly (<6 hours). Cut today\'s volume by 25%, lower RPE targets, and pair accessories into quick supersets.')" class="flex-shrink-0 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full">💤 Poor Sleep Deload</button>
-      <button onclick="fillPrompt('I feel great today and want to push harder. Add volume/intensity to upper body or posterior chain without exceeding MACI knee limits.')" class="flex-shrink-0 text-[11px] bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 px-2.5 py-1 rounded-full">🔥 Push Harder Today</button>
+    <!-- One-Tap Quick Prompts -->
+    <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-2">
+      <button onclick="fillPrompt('Rebuild today (' + state.activeDay + ') to maximize antagonist supersets while keeping primary heavy lifts standalone.')" class="flex-shrink-0 text-[11px] bg-[#e8f0fe] hover:bg-blue-100 text-[#1a73e8] font-medium px-3 py-1 rounded-full transition">🔗 More Supersets Today</button>
+      <button onclick="fillPrompt('I changed my time on ' + state.activeDay + '. Rebalance ' + state.activeDay + ' and all remaining unlocked days so weekly volume and muscle recovery stay optimal.')" class="flex-shrink-0 text-[11px] bg-[#fef7e0] hover:bg-amber-100 text-[#b06000] font-medium px-3 py-1 rounded-full transition">⏱️ Recalculate After Time Change</button>
+      <button onclick="fillPrompt('I slept poorly and feel fatigued today (' + state.activeDay + '). Deload today\'s RPE and volume by 20% while keeping movement quality high.')" class="flex-shrink-0 text-[11px] bg-gray-100 hover:bg-gray-200 text-[#5f6368] font-medium px-3 py-1 rounded-full transition">💤 Poor Sleep Deload</button>
+      <button onclick="fillPrompt('I feel great today (' + state.activeDay + ') and want to push harder. Increase intensity or add a high-density finisher within my time limit.')" class="flex-shrink-0 text-[11px] bg-[#e6f4ea] hover:bg-green-100 text-[#1e8e3e] font-medium px-3 py-1 rounded-full transition">🔥 Push Harder Today</button>
+      <button onclick="fillPrompt('My knee feels slightly stiff today (' + state.activeDay + '). Pivot today\'s exercises to posterior chain, glutes, and upper body with zero knee discomfort.')" class="flex-shrink-0 text-[11px] bg-[#fce8e6] hover:bg-red-100 text-[#d93025] font-medium px-3 py-1 rounded-full transition">🛡️ Knee Care Pivot</button>
     </div>
 
     <div class="flex space-x-2">
-      <textarea id="aiPromptInput" rows="2" placeholder="e.g., 'Make Friday just a swim, or convert today into supersets...'" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-indigo-400 resize-none"></textarea>
-      <button onclick="sendToGemini()" id="sendAiBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 rounded-lg text-xs transition flex items-center justify-center">
+      <textarea id="aiPromptInput" rows="2" placeholder="Tell your trainer what changed (e.g., 'Lock Mon/Tue, shorten Thu to 45m, and make Fri a swim')..." class="flex-1 bg-[#f8f9fa] border border-[#dadce0] rounded-xl p-2.5 text-xs text-[#202124] focus:outline-none focus:border-[#1a73e8] resize-none"></textarea>
+      <button onclick="handleCustomPrompt()" id="sendAiBtn" class="bg-[#202124] hover:bg-black text-white font-bold px-4 rounded-xl text-xs transition">
         Update
       </button>
     </div>
-    <div id="aiSummaryBanner" class="hidden mt-2.5 p-2.5 rounded-lg bg-indigo-950/50 border border-indigo-800/70 text-xs text-indigo-200"></div>
-    <div id="aiErrorBanner" class="hidden mt-2.5 p-2.5 rounded-lg bg-red-950/60 border border-red-800 text-xs text-red-200 font-mono break-words"></div>
+
+    <div id="aiSummaryBanner" class="hidden mt-3 p-3 rounded-xl bg-[#e8f0fe] border border-[#8ab4f8] text-xs text-[#174ea6] leading-relaxed"></div>
+    <div id="aiErrorBanner" class="hidden mt-3 p-3 rounded-xl bg-[#fce8e6] border border-[#f28b82] text-xs text-[#c5221f] font-mono break-words"></div>
   </section>
 
-  <!-- Active Day Tabs -->
+  <!-- SECTION 3: Active Day Navigation Tabs -->
   <div class="flex space-x-1.5 overflow-x-auto pb-2 mb-4" id="activeDayTabs"></div>
 
-  <!-- Mandatory Physio Warmup -->
-  <div class="card rounded-xl p-3.5 mb-4 border-l-4 border-l-emerald-500">
-    <div class="flex justify-between items-center cursor-pointer" onclick="document.getElementById('rehabWarmup').classList.toggle('hidden')">
-      <div>
-        <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Pre-Session Rehab & Prep (8 Mins)</h3>
-        <p class="text-[11px] text-slate-400">Brittney's Protocol — Tap to expand/collapse</p>
+  <!-- SECTION 4: Editable Pre-Session Warm-up & Rehab Block -->
+  <div id="warmupCard" class="g-card p-4 mb-4 border-l-4 border-l-[#1e8e3e]">
+    <div class="flex justify-between items-center">
+      <div class="cursor-pointer flex-1" onclick="document.getElementById('rehabWarmupList').classList.toggle('hidden')">
+        <div class="flex items-center space-x-2">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#1e8e3e]">Pre-Session Warm-up & Prep</h3>
+          <span id="warmupDurationBadge" class="text-[11px] font-mono bg-[#e6f4ea] text-[#1e8e3e] px-2 py-0.5 rounded-full font-semibold">8 Mins</span>
+        </div>
+        <p class="text-[11px] text-[#5f6368] mt-0.5">Included in your total session duration • Tap to expand/collapse</p>
       </div>
-      <span class="text-xs text-slate-400">▼</span>
+      <button onclick="toggleModal('profileModal')" class="text-[11px] text-[#1a73e8] hover:underline font-medium ml-2">Edit Warmup</button>
     </div>
-    <div id="rehabWarmup" class="mt-2.5 space-y-1.5 text-xs border-t border-slate-800 pt-2.5">
-      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Foam Roll / Massage Gun:</strong> Outer thigh (ITB) & lateral hip (2 mins)</span></label>
-      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Active Knee Flexion (Sitting):</strong> 3 × 10 controlled reps</span></label>
-      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Hip Flexor Stretch:</strong> 1 × 3 holds (30s each side)</span></label>
-      <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="rounded bg-slate-900 border-slate-700 text-sky-500 h-4 w-4"><span><strong>Single-Leg Bosu Balance:</strong> 3 × 45s (every 2nd day)</span></label>
-    </div>
+    <div id="rehabWarmupList" class="mt-3 space-y-2 text-xs border-t border-[#dadce0] pt-3"></div>
   </div>
 
-  <!-- Workout Execution Container -->
+  <!-- SECTION 5: Step-by-Step Workout Execution -->
   <div id="workoutSteps" class="space-y-4"></div>
 
-  <!-- Floating Rest Timer -->
-  <div class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 p-3 z-50">
+  <!-- Floating Google Material Rest Timer Bar -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-[#dadce0] p-3 z-50 shadow-lg">
     <div class="max-w-2xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
-        <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Rest:</span>
-        <span id="timerDisplay" class="font-mono text-xl font-bold text-sky-400">00:00</span>
+        <span class="text-xs uppercase font-bold tracking-wider text-[#5f6368]">Rest Timer</span>
+        <span id="timerDisplay" class="font-mono text-xl font-bold text-[#1a73e8]">00:00</span>
       </div>
       <div class="flex space-x-1.5">
-        <button onclick="startTimer(45)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">45s</button>
-        <button onclick="startTimer(60)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">60s</button>
-        <button onclick="startTimer(90)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">90s</button>
-        <button onclick="startTimer(120)" class="bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded font-semibold border border-slate-700">2m</button>
-        <button onclick="stopTimer()" class="bg-red-950/60 hover:bg-red-900 text-red-300 text-xs px-2.5 py-1.5 rounded border border-red-800">Stop</button>
+        <button onclick="startTimer(45)" class="bg-[#f8f9fa] hover:bg-gray-200 text-[#202124] text-xs px-3 py-1.5 rounded-full font-semibold border border-[#dadce0]">45s</button>
+        <button onclick="startTimer(60)" class="bg-[#f8f9fa] hover:bg-gray-200 text-[#202124] text-xs px-3 py-1.5 rounded-full font-semibold border border-[#dadce0]">60s</button>
+        <button onclick="startTimer(90)" class="bg-[#f8f9fa] hover:bg-gray-200 text-[#202124] text-xs px-3 py-1.5 rounded-full font-semibold border border-[#dadce0]">90s</button>
+        <button onclick="startTimer(120)" class="bg-[#f8f9fa] hover:bg-gray-200 text-[#202124] text-xs px-3 py-1.5 rounded-full font-semibold border border-[#dadce0]">2m</button>
+        <button onclick="stopTimer()" class="bg-[#fce8e6] hover:bg-red-200 text-[#d93025] text-xs px-3 py-1.5 rounded-full font-semibold">Stop</button>
       </div>
     </div>
   </div>
 
   <script>
     const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const DURATIONS = [15, 30, 45, 60, 75, 90];
+    const MODALITIES = ['Strength', 'Swim', 'Conditioning', 'Auto'];
 
-    const DEFAULT_TEMPLATES = {
-      LOWER_A: {
-        title: "Lower Body Strength + Graft Load A",
-        subtitle: "Standalone Compound Focus + Superset Finisher",
-        aiNote: "Baseline schedule loaded.",
+    const DEFAULT_PROFILE_CONTEXT = `11 months post-MACI knee cartilage surgery. Cleared for unilateral loading and deeper knee flexion. Restrictions: No running or heavy jumping/plyometrics; keep knee discomfort < 2/10. Zero current ITB or shoulder issues. Goal: Lose 3-4kg of body fat while gaining/maintaining muscle mass (lean recomposition). Equipment & benchmarks: Full gym access, up to 40kg dumbbells for flat bench press, barbell back squats, barbell RDLs, single-leg squats/split squats, leg extensions, landmine presses, half-kneeling single-arm lat pulldowns, and pool access for swimming (1.2km sessions). Prefers pairing accessories and upper-body push/pull into antagonist supersets while keeping heavy axial lifts standalone.`;
+
+    const DEFAULT_WARMUP_ITEMS = [
+      "Foam Roll / Massage Gun: Quads, glutes & adductors (2 mins)",
+      "Active Knee Flexion & Deep Squat Mobility Pry (2 sets × 10 reps)",
+      "Hip Flexor & Thoracic Rotation Stretch (30s each side)",
+      "Single-Leg Balance / Glute Medius Activation (2 × 45s each leg)"
+    ];
+
+    // Baseline Default Workouts (scaled for 60m / 45m including 8m warmup)
+    const BASELINE_TEMPLATES = {
+      LOWER_STRENGTH: {
+        title: "Lower Body Strength & Unilateral Quad/Glute",
+        subtitle: "Primary Lower Session • Full ROM & Unilateral Control",
+        primaryMuscles: ["Quadriceps", "Glutes", "Hamstrings"],
+        estimatedMinutes: 60,
+        aiNote: "Standalone axial compounds followed by unilateral & posterior supersets.",
         blocks: [
           {
             type: "standalone",
             restSeconds: 120,
-            restNote: "Rest 2 mins between sets (Full CNS & Knee Recovery)",
+            restNote: "Rest 2 mins between sets (4 sets = ~12 mins)",
             exercises: [
-              { id: "box_squat", code: "1", name: "Barbell Back Squat to Box", sets: 4, reps: "8-10", load: "Controlled Progressive (RPE 7.5)", cues: "3s eccentric down to box. 1s pause on box keeping trunk tight. Discomfort strictly < 2/10." }
+              { id: "bb_squat", code: "1", name: "Barbell Back Squat", sets: 4, reps: "8-10", load: "Progressive Heavy (RPE 8)", cues: "Controlled 3s eccentric into deeper comfortable knee flexion; drive through midfoot." }
             ]
           },
           {
             type: "standalone",
             restSeconds: 90,
-            restNote: "Rest 90s between sets",
+            restNote: "Rest 90s between sets (4 sets = ~10 mins)",
             exercises: [
-              { id: "bb_rdl", code: "2", name: "Barbell or DB Romanian Deadlift (RDL)", sets: 4, reps: "8-10", load: "20kg+ Bar or Heavy DBs (RPE 8)", cues: "15° fixed knee angle. Push hips straight back until hamstring stretch." }
+              { id: "bb_rdl", code: "2", name: "Barbell Romanian Deadlift (RDL)", sets: 4, reps: "8-10", load: "Progressive Heavy (RPE 8)", cues: "Hinge hips back, maintain neutral spine, feel deep hamstring stretch." }
             ]
           },
           {
             type: "superset",
-            label: "SUPERSET A — Unilateral Quad & Restricted-Arc Isolation",
-            restBetweenExercises: "0s (Move immediately from A1 to A2)",
-            restAfterRoundSeconds: 90,
-            restNote: "Rest 90s after completing both A1 & A2",
-            exercises: [
-              { id: "sl_squat", code: "A1", name: "Supported Single-Leg Squat to Box", sets: 3, reps: "8 each leg", load: "Bodyweight / Light Goblet", cues: "Knee tracks over 2nd toe. Prevent hip drop (ITB protection)." },
-              { id: "leg_ext", code: "A2", name: "Restricted-Arc Leg Extension", sets: 3, reps: "12-15", load: "Light-Mod (Strict Control)", cues: "Restricted pain-free terminal arc only. 2s pause at top, 3s lower." }
-            ]
-          },
-          {
-            type: "superset",
-            label: "SUPERSET B — Physio Calf & Core Stability",
-            restBetweenExercises: "0s",
-            restAfterRoundSeconds: 60,
-            restNote: "Rest 60s after completing both B1 & B2",
-            exercises: [
-              { id: "calf_raise", code: "B1", name: "Single-Leg Calf Raise on Step", sets: 3, reps: "8-10 each", load: "Bodyweight + DB", cues: "Full heel drop stretch, 2s pause at peak contraction." },
-              { id: "farmers_carry", code: "B2", name: "Heavy Farmer's Carry", sets: 3, reps: "40m walk", load: "Heavy DBs", cues: "Tall posture, ribs stacked, steady dynamic knee control." }
-            ]
-          }
-        ]
-      },
-
-      UPPER_A: {
-        title: "Upper Body Heavy Antagonist Supersets",
-        subtitle: "High-Density Push/Pull Hypertrophy • Zero Knee Shear",
-        aiNote: "Antagonist supersets pre-configured for time efficiency and pump.",
-        blocks: [
-          {
-            type: "superset",
-            label: "SUPERSET A — Primary Heavy Horizontal Push / Vertical Pull",
-            restBetweenExercises: "15-20s transition",
-            restAfterRoundSeconds: 120,
-            restNote: "Rest 2 mins after completing both A1 & A2",
-            exercises: [
-              { id: "db_bench", code: "A1", name: "Flat Dumbbell Bench Press", sets: 4, reps: "6-8", load: "Up to 40kg DBs (RPE 8.5)", cues: "45° elbow tuck to protect shoulder capsule. 2s lower, drive up." },
-              { id: "lat_pulldown", code: "A2", name: "Single-Arm Half-Kneeling Lat Pulldown", sets: 4, reps: "10-12 each", load: "Heavy Stack", cues: "Pad under kneeling knee. Drive elbow into hip pocket." }
-            ]
-          },
-          {
-            type: "superset",
-            label: "SUPERSET B — Scapular Plane Press & Supported Row",
-            restBetweenExercises: "0-15s transition",
-            restAfterRoundSeconds: 90,
-            restNote: "Rest 90s after completing both B1 & B2",
-            exercises: [
-              { id: "landmine_press", code: "B1", name: "Single-Arm Standing Landmine Press", sets: 3, reps: "10 each", load: "Bar + 15-25kg", cues: "Press along scapular plane; zero shoulder impingement." },
-              { id: "chest_row", code: "B2", name: "Chest-Supported DB or Machine Row", sets: 3, reps: "10-12", load: "Heavy (RPE 8)", cues: "2s retraction squeeze at top." }
-            ]
-          },
-          {
-            type: "superset",
-            label: "SUPERSET C — Shoulder Cuff & Arm Finisher",
-            restBetweenExercises: "0s",
-            restAfterRoundSeconds: 60,
-            restNote: "Rest 60s after completing both C1 & C2",
-            exercises: [
-              { id: "face_pulls", code: "C1", name: "Cable Face Pulls (External Rotation)", sets: 3, reps: "15", load: "Moderate", cues: "Thumbs back, rotate cuffs externally." },
-              { id: "incline_curls", code: "C2", name: "Incline DB Bicep Curls", sets: 3, reps: "10-12", load: "Moderate", cues: "Full long-head stretch at bottom." }
-            ]
-          }
-        ]
-      },
-
-      LOWER_B: {
-        title: "Unilateral Lower, Hamstrings & Landing Mechanics",
-        subtitle: "Asymmetry Correction & Posterior Dominance",
-        aiNote: "Baseline schedule loaded.",
-        blocks: [
-          {
-            type: "standalone",
-            restSeconds: 90,
-            restNote: "Rest 90s — Perform while CNS is 100% fresh",
-            exercises: [
-              { id: "landing_drill", code: "1", name: "Low-Box Drop Landing / Deceleration Drill", sets: 3, reps: "6 controlled drops", load: "Bodyweight", cues: "Step off 15cm box, land quietly absorbing force via hips & quads. Skip if knee > 1/10." }
-            ]
-          },
-          {
-            type: "standalone",
-            restSeconds: 120,
-            restNote: "Rest 2 mins between heavy sets",
-            exercises: [
-              { id: "hip_thrust", code: "2", name: "Barbell Hip Thrust", sets: 4, reps: "8-10", load: "Heavy Progressive", cues: "Vertical shins at top, chin tucked, zero anterior knee shear." }
-            ]
-          },
-          {
-            type: "superset",
-            label: "SUPERSET A — Hamstring Co-Contraction & Split Squat",
+            label: "SUPERSET A — Unilateral Quad & Hamstring Co-Contraction",
             restBetweenExercises: "15s transition",
             restAfterRoundSeconds: 90,
-            restNote: "Rest 90s after completing both A1 & A2",
+            restNote: "Rest 90s after completing both A1 & A2 (~15 mins)",
             exercises: [
-              { id: "ham_curl", code: "A1", name: "Seated or Prone Hamstring Curl", sets: 3, reps: "10-12", load: "Mod-Heavy (RPE 8)", cues: "Warms up knee joint capsule prior to unilateral squat. 3s eccentric." },
-              { id: "split_squat", code: "A2", name: "Vertical-Shin Split Squat / High Step-Up", sets: 3, reps: "8 each leg", load: "Light-Mod DBs", cues: "Slight torso lean forward to engage glutes and unload patella." }
+              { id: "bulgarian_split", code: "A1", name: "Rear-Foot Elevated Split Squat (or Step-Up)", sets: 4, reps: "8-10 each leg", load: "Moderate DBs (RPE 8)", cues: "Full controlled knee flexion, knee tracks cleanly over 2nd toe." },
+              { id: "ham_curl", code: "A2", name: "Seated or Prone Hamstring Curl", sets: 4, reps: "10-12", load: "Mod-Heavy (RPE 8)", cues: "1s squeeze at peak contraction, 3s eccentric." }
+            ]
+          },
+          {
+            type: "superset",
+            label: "SUPERSET B — Quad Isolation & Calf Resilience",
+            restBetweenExercises: "0s transition",
+            restAfterRoundSeconds: 60,
+            restNote: "Rest 60s after completing both B1 & B2 (~12 mins)",
+            exercises: [
+              { id: "leg_ext", code: "B1", name: "Seated Leg Extension", sets: 3, reps: "12-15", load: "Moderate (Smooth Tempo)", cues: "Controlled arc with 1s isometric pause at top." },
+              { id: "sl_calf", code: "B2", name: "Single-Leg Calf Raise on Step", sets: 3, reps: "10-12 each", load: "Bodyweight + DB", cues: "Full stretch at bottom, 2s pause at peak." }
+            ]
+          }
+        ]
+      },
+
+      UPPER_PUSH_PULL: {
+        title: "Upper Body Heavy Antagonist Supersets",
+        subtitle: "Chest, Back & Shoulders • High-Density Hypertrophy",
+        primaryMuscles: ["Chest", "Lats", "Shoulders", "Arms"],
+        estimatedMinutes: 60,
+        aiNote: "Zero lower-body axial load so legs recover fully.",
+        blocks: [
+          {
+            type: "superset",
+            label: "SUPERSET A — Heavy Horizontal Push & Vertical Pull",
+            restBetweenExercises: "20s transition",
+            restAfterRoundSeconds: 120,
+            restNote: "Rest 2 mins after completing both A1 & A2 (~16 mins)",
+            exercises: [
+              { id: "flat_db_bench", code: "A1", name: "Flat Dumbbell Bench Press", sets: 4, reps: "6-8", load: "Up to 40kg DBs (RPE 8.5)", cues: "Full stretch across pecs, strong drive to lockout." },
+              { id: "sa_lat_pulldown", code: "A2", name: "Single-Arm Half-Kneeling Lat Pulldown", sets: 4, reps: "10-12 each", load: "Heavy Stack (RPE 8)", cues: "Drive elbow toward hip pocket, full lat stretch at top." }
+            ]
+          },
+          {
+            type: "superset",
+            label: "SUPERSET B — Incline / Landmine Press & Supported Row",
+            restBetweenExercises: "15s transition",
+            restAfterRoundSeconds: 90,
+            restNote: "Rest 90s after completing both B1 & B2 (~15 mins)",
+            exercises: [
+              { id: "incline_db_press", code: "B1", name: "Incline Dumbbell Press (30°)", sets: 4, reps: "8-10", load: "32.5kg-35kg DBs (RPE 8)", cues: "Control eccentric for 2s, keep upper back tight." },
+              { id: "chest_row", code: "B2", name: "Chest-Supported DB or T-Bar Row", sets: 4, reps: "10-12", load: "Heavy (RPE 8.5)", cues: "2s scapular retraction squeeze at top." }
+            ]
+          },
+          {
+            type: "superset",
+            label: "SUPERSET C — Delts & Arms Hypertrophy",
+            restBetweenExercises: "0s transition",
+            restAfterRoundSeconds: 60,
+            restNote: "Rest 60s after completing both C1 & C2 (~12 mins)",
+            exercises: [
+              { id: "cable_lat_raise", code: "C1", name: "Cable or DB Lateral Raise", sets: 4, reps: "12-15", load: "Moderate", cues: "Raise in scapular plane, lead with elbows." },
+              { id: "incline_db_curl", code: "C2", name: "Incline DB Bicep Curls + Rope Pressdown", sets: 4, reps: "12-15", load: "Moderate", cues: "Full range of motion arm pump finisher." }
             ]
           },
           {
             type: "standalone",
             restSeconds: 60,
-            restNote: "Rest 60s between rounds",
+            restNote: "Rest 60s between carries (~7 mins)",
             exercises: [
-              { id: "calf_bosu", code: "3", name: "Single-Leg Calf Raise + Bosu Balance Hold", sets: 3, reps: "8 reps + 35s hold", load: "Bodyweight / DB", cues: "Every-second-day physio compliance." }
+              { id: "farmers_walk", code: "1", name: "Heavy Farmer's Carry", sets: 3, reps: "40m walk", load: "Heavy DBs", cues: "Braced core, tall posture, grip endurance." }
             ]
           }
         ]
       },
 
-      SWIM_COND: {
-        title: "Low-Impact Swim & Joint Decompression",
-        subtitle: "Colmslie Pool Protocol • Aerobic Deficit & Hydrostatic Flush",
-        aiNote: "Dedicated swim session.",
+      POSTERIOR_UNILATERAL: {
+        title: "Posterior Chain, Glutes & Athletic Core",
+        subtitle: "Hinge & Unilateral Power • Golf & Trunk Stability",
+        primaryMuscles: ["Glutes", "Hamstrings", "Core", "Upper Back"],
+        estimatedMinutes: 60,
+        aiNote: "Balanced lower-body volume separated by 48+ hours from primary squat session.",
+        blocks: [
+          {
+            type: "standalone",
+            restSeconds: 120,
+            restNote: "Rest 2 mins between sets (~12 mins)",
+            exercises: [
+              { id: "bb_hip_thrust", code: "1", name: "Barbell Hip Thrust", sets: 4, reps: "8-10", load: "Heavy Progressive (RPE 8.5)", cues: "2s pause at full hip lockout, vertical shins." }
+            ]
+          },
+          {
+            type: "superset",
+            label: "SUPERSET A — Unilateral Squat & Landmine Rotational Press",
+            restBetweenExercises: "15s transition",
+            restAfterRoundSeconds: 90,
+            restNote: "Rest 90s after completing both A1 & A2 (~16 mins)",
+            exercises: [
+              { id: "goblet_sl_squat", code: "A1", name: "Goblet Front-Foot Elevated Split Squat", sets: 4, reps: "8-10 each leg", load: "Moderate-Heavy DB/KB", cues: "Deep knee flexion to build VMO and quad strength." },
+              { id: "landmine_press", code: "A2", name: "Standing Single-Arm Landmine Press", sets: 4, reps: "10 each side", load: "Bar + 20kg", cues: "Brace glutes and obliques; explosive overhead drive." }
+            ]
+          },
+          {
+            type: "superset",
+            label: "SUPERSET B — Posterior Chain & Lat/Rear Delt Pull",
+            restBetweenExercises: "15s transition",
+            restAfterRoundSeconds: 90,
+            restNote: "Rest 90s after completing both B1 & B2 (~14 mins)",
+            exercises: [
+              { id: "db_sl_rdl", code: "B1", name: "B-Stance or Single-Leg DB RDL", sets: 3, reps: "10 each leg", load: "Moderate-Heavy DBs", cues: "Hips square to floor, load hamstring and glute." },
+              { id: "face_pulls", code: "B2", name: "Seated Cable Row or Face Pulls", sets: 3, reps: "12-15", load: "Moderate-Heavy", cues: "Clean scapular control." }
+            ]
+          },
+          {
+            type: "standalone",
+            restSeconds: 45,
+            restNote: "Low-impact metabolic flush (~10 mins)",
+            exercises: [
+              { id: "bike_flush", code: "2", name: "Stationary Bike High-Cadence Flush", sets: 1, reps: "8 Mins Continuous", load: "Zone 2 / 85+ RPM", cues: "Promotes synovial joint nutrition and caloric expenditure." }
+            ]
+          }
+        ]
+      },
+
+      SWIM_SESSION: {
+        title: "1.2km Pool Swim & Hydrostatic Conditioning",
+        subtitle: "Zero-Impact Aerobic Output & Full-Body Flush",
+        primaryMuscles: ["Cardio", "Lats", "Shoulders", "Core"],
+        estimatedMinutes: 45,
+        aiNote: "Full duration spent in the pool (no gym warmup deducted).",
         blocks: [
           {
             type: "standalone",
             restSeconds: 45,
-            restNote: "45s rest at wall as needed",
+            restNote: "Rest 45s at wall",
             exercises: [
-              { id: "swim_warmup", code: "1", name: "Easy Freestyle + Pull Buoy Warmup", sets: 1, reps: "300m continuous", load: "Zone 2 Easy", cues: "Use pull buoy if knee feels stiff; focus on long stroke & bilateral breathing." }
+              { id: "swim_wu", code: "1", name: "Freestyle + Pull Buoy Warm-up", sets: 1, reps: "300m continuous", load: "Easy Zone 2", cues: "Long relaxed stroke, bilateral breathing, hip-driven kick." }
             ]
           },
           {
             type: "standalone",
             restSeconds: 30,
-            restNote: "Rest 30s at wall between 100m repeats",
+            restNote: "Rest 30s between 100m repeats",
             exercises: [
-              { id: "swim_main", code: "2", name: "Freestyle Aerobic Pace Repeats", sets: 6, reps: "100m repeats", load: "RPE 7.5 (Strong steady pace)", cues: "Flutter kick from hips (minimal aggressive knee whip). Avoid hard wall push-offs on surgical leg." }
+              { id: "swim_main", code: "2", name: "Aerobic Pace Freestyle Repeats", sets: 7, reps: "100m repeats (700m total)", load: "RPE 7.5-8 (Strong steady pace)", cues: "Consistent pacing per 100m; controlled push-offs." }
             ]
           },
           {
             type: "standalone",
             restSeconds: 30,
-            restNote: "Easy flush",
+            restNote: "Cooldown",
             exercises: [
-              { id: "swim_cool", code: "3", name: "Easy Pull / Backstroke Cooldown + Deep Water Walk", sets: 1, reps: "200m + 3 min walk", load: "Recovery", cues: "Gentle hydrostatic joint mobilization." }
+              { id: "swim_cd", code: "3", name: "Easy Pull / Backstroke Cooldown", sets: 1, reps: "200m easy", load: "Recovery Zone 1", cues: "Bring heart rate down smoothly." }
             ]
           }
         ]
       }
     };
 
-    let state = JSON.parse(localStorage.getItem('rhyd_workout_v2')) || {
-      selectedDays: ['Tue', 'Thu', 'Fri', 'Sun'],
-      activeDay: 'Sun',
+    // Initialize or migrate persistent state
+    let state = JSON.parse(localStorage.getItem('rhyd_workout_v3')) || {
+      profileContext: DEFAULT_PROFILE_CONTEXT,
+      warmupMins: 8,
+      warmupItems: DEFAULT_WARMUP_ITEMS,
+      weightHistory: {
+        "flat_dumbbell_bench_press": "40kg DBs"
+      },
+      activeDay: 'Mon',
+      dayConfigs: {
+        Mon: { active: true, duration: 60, modality: 'Strength', locked: false },
+        Tue: { active: true, duration: 60, modality: 'Strength', locked: false },
+        Wed: { active: false, duration: 45, modality: 'Auto', locked: false },
+        Thu: { active: true, duration: 60, modality: 'Strength', locked: false },
+        Fri: { active: true, duration: 45, modality: 'Swim', locked: false },
+        Sat: { active: false, duration: 60, modality: 'Auto', locked: false },
+        Sun: { active: false, duration: 60, modality: 'Strength', locked: false }
+      },
       schedule: {},
-      completedSets: {}
+      completedSets: {},
+      warmupChecked: {}
     };
 
     function saveState() {
-      localStorage.setItem('rhyd_workout_v2', JSON.stringify(state));
+      localStorage.setItem('rhyd_workout_v3', JSON.stringify(state));
     }
 
-    function initDefaultScheduleIfEmpty() {
-      const order = ['UPPER_A', 'LOWER_B', 'SWIM_COND', 'LOWER_A', 'UPPER_A', 'SWIM_COND', 'LOWER_A'];
-      state.selectedDays.forEach((day, idx) => {
+    function normalizeExerciseKey(name) {
+      return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    }
+
+    function ensureDefaultSchedule() {
+      const activeDays = DAYS.filter(d => state.dayConfigs[d]?.active);
+      if (activeDays.length === 0) {
+        state.dayConfigs['Mon'].active = true;
+        activeDays.push('Mon');
+      }
+
+      const strengthCycle = ['LOWER_STRENGTH', 'UPPER_PUSH_PULL', 'POSTERIOR_UNILATERAL', 'UPPER_PUSH_PULL'];
+      let sIdx = 0;
+
+      activeDays.forEach(day => {
         if (!state.schedule[day]) {
-          const tKey = day === 'Fri' ? 'SWIM_COND' : (day === 'Sun' ? 'LOWER_A' : order[idx % order.length]);
-          state.schedule[day] = JSON.parse(JSON.stringify(DEFAULT_TEMPLATES[tKey]));
+          const mod = state.dayConfigs[day].modality;
+          if (mod === 'Swim') {
+            state.schedule[day] = JSON.parse(JSON.stringify(BASELINE_TEMPLATES.SWIM_SESSION));
+          } else {
+            const key = strengthCycle[sIdx % strengthCycle.length];
+            sIdx++;
+            state.schedule[day] = JSON.parse(JSON.stringify(BASELINE_TEMPLATES[key]));
+          }
+          state.schedule[day].estimatedMinutes = state.dayConfigs[day].duration;
         }
       });
-      if (!state.selectedDays.includes(state.activeDay)) {
-        state.activeDay = state.selectedDays[0] || 'Sun';
+
+      if (!state.dayConfigs[state.activeDay]?.active) {
+        state.activeDay = activeDays[0];
       }
       saveState();
     }
 
-    function rebuildBaselineWeek() {
-      state.schedule = {};
-      initDefaultScheduleIfEmpty();
-      renderAll();
-    }
-
-    function toggleApiModal() {
-      const modal = document.getElementById('apiModal');
-      modal.classList.toggle('hidden');
-      const existing = localStorage.getItem('rhyd_gemini_api_key') || '';
-      document.getElementById('apiKeyInput').value = existing;
+    // Modal & Profile Management
+    function toggleModal(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
+      if (id === 'apiModal') {
+        document.getElementById('apiKeyInput').value = localStorage.getItem('rhyd_gemini_api_key') || '';
+      }
+      if (id === 'profileModal') {
+        document.getElementById('healthContextInput').value = state.profileContext;
+        document.getElementById('warmupMinsInput').value = String(state.warmupMins || 8);
+        document.getElementById('warmupListInput').value = (state.warmupItems || []).join('\n');
+        renderWeightHistorySummary();
+      }
     }
 
     function saveApiKey() {
       const key = document.getElementById('apiKeyInput').value.replace(/\s+/g, '');
       if (!key) return alert("Please enter a valid Gemini API key.");
       localStorage.setItem('rhyd_gemini_api_key', key);
-      localStorage.removeItem('rhyd_cached_model');
       document.getElementById('apiModal').classList.add('hidden');
       updateApiKeyButtonState();
     }
@@ -353,8 +535,151 @@
       const key = localStorage.getItem('rhyd_gemini_api_key');
       const btn = document.getElementById('apiKeyBtn');
       if (key) {
-        btn.innerText = "⚙️ Key Active";
-        btn.className = "text-xs bg-emerald-950/70 text-emerald-300 border border-emerald-800 px-2.5 py-1.5 rounded-lg font-medium";
+        btn.innerHTML = `<span class="text-[#1e8e3e] font-bold">●</span> <span>API Active</span>`;
+        btn.className = "text-xs bg-[#e6f4ea] text-[#1e8e3e] border border-[#ceead6] px-3 py-1.5 rounded-full font-semibold shadow-sm";
+      }
+    }
+
+    function saveProfileContext() {
+      state.profileContext = document.getElementById('healthContextInput').value.trim() || DEFAULT_PROFILE_CONTEXT;
+      state.warmupMins = parseInt(document.getElementById('warmupMinsInput').value, 10) || 8;
+      const lines = document.getElementById('warmupListInput').value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean);
+      state.warmupItems = lines.length > 0 ? lines : DEFAULT_WARMUP_ITEMS;
+      saveState();
+      document.getElementById('profileModal').classList.add('hidden');
+      renderAll();
+    }
+
+    function renderWeightHistorySummary() {
+      const container = document.getElementById('weightHistorySummary');
+      const entries = Object.entries(state.weightHistory || {}).filter(([_, v]) => v && v.trim() !== '');
+      if (entries.length === 0) {
+        container.innerText = "No weights logged yet. Type weights into any exercise card to remember them.";
+        return;
+      }
+      container.innerHTML = entries
+        .map(([k, v]) => `<div class="flex justify-between py-0.5 border-b border-gray-200 last:border-0"><span>${k.replace(/_/g, ' ')}</span><strong class="text-[#1a73e8]">${v}</strong></div>`)
+        .join('');
+    }
+
+    function clearWeightHistory() {
+      if (confirm("Clear all saved exercise weights?")) {
+        state.weightHistory = {};
+        saveState();
+        renderWeightHistorySummary();
+        renderWorkoutView();
+      }
+    }
+
+    function logExerciseWeight(exerciseName, value) {
+      const normKey = normalizeExerciseKey(exerciseName);
+      const trimmed = value.trim();
+      if (!trimmed) {
+        delete state.weightHistory[normKey];
+      } else {
+        state.weightHistory[normKey] = trimmed;
+      }
+      saveState();
+    }
+
+    // Weekly Planner Grid
+    function renderWeeklyPlanner() {
+      const grid = document.getElementById('weeklyPlannerGrid');
+      grid.innerHTML = '';
+      const activeDays = DAYS.filter(d => state.dayConfigs[d]?.active);
+      document.getElementById('activeSummaryBadge').innerText = `${activeDays.length} Active Days`;
+
+      DAYS.forEach(day => {
+        const cfg = state.dayConfigs[day];
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${
+          cfg.active
+            ? (cfg.locked ? 'bg-[#e6f4ea]/60 border-[#ceead6]' : 'bg-white border-[#dadce0]')
+            : 'bg-[#f8f9fa] border-transparent opacity-65'
+        }`;
+
+        // Day Toggle Button
+        const dayBtnClass = cfg.active
+          ? (cfg.locked ? 'bg-[#1e8e3e] text-white' : 'bg-[#1a73e8] text-white')
+          : 'bg-gray-200 text-[#5f6368]';
+
+        const durationOptions = DURATIONS.map(m =>
+          `<option value="${m}" ${cfg.duration === m ? 'selected' : ''}>${m}m total</option>`
+        ).join('');
+
+        const modalityOptions = MODALITIES.map(mod =>
+          `<option value="${mod}" ${cfg.modality === mod ? 'selected' : ''}>${mod}</option>`
+        ).join('');
+
+        const muscleTag = (cfg.active && state.schedule[day]?.primaryMuscles)
+          ? `<span class="hidden sm:inline-block text-[10px] bg-gray-100 text-[#5f6368] px-2 py-0.5 rounded-full truncate max-w-[130px]">${state.schedule[day].primaryMuscles.join(', ')}</span>`
+          : '';
+
+        row.innerHTML = `
+          <div class="flex items-center space-x-2.5">
+            <button onclick="toggleDayActive('${day}')" class="w-12 py-1.5 rounded-lg text-xs font-bold transition ${dayBtnClass}">
+              ${day}
+            </button>
+            ${cfg.active ? `
+              <select onchange="updateDayConfig('${day}', 'duration', parseInt(this.value, 10))" ${cfg.locked ? 'disabled' : ''} class="bg-[#f8f9fa] border border-[#dadce0] rounded-lg px-2 py-1 text-xs font-semibold text-[#202124] disabled:opacity-60">
+                ${durationOptions}
+              </select>
+              <select onchange="updateDayConfig('${day}', 'modality', this.value)" ${cfg.locked ? 'disabled' : ''} class="bg-[#f8f9fa] border border-[#dadce0] rounded-lg px-2 py-1 text-xs font-medium text-[#202124] disabled:opacity-60">
+                ${modalityOptions}
+              </select>
+              ${muscleTag}
+            ` : `<span class="text-xs text-[#5f6368] italic">Rest & Recovery Day</span>`}
+          </div>
+
+          ${cfg.active ? `
+            <button onclick="toggleDayLock('${day}')" class="text-xs px-2.5 py-1 rounded-full font-semibold border transition flex items-center space-x-1 ${
+              cfg.locked
+                ? 'bg-[#e6f4ea] text-[#1e8e3e] border-[#1e8e3e]/30'
+                : 'bg-[#f8f9fa] text-[#5f6368] border-[#dadce0] hover:bg-gray-100'
+            }">
+              <span>${cfg.locked ? '🔒 Locked' : '🔓 Open'}</span>
+            </button>
+          ` : ''}
+        `;
+        grid.appendChild(row);
+      });
+    }
+
+    function toggleDayActive(day) {
+      const cfg = state.dayConfigs[day];
+      if (cfg.locked) {
+        alert(`${day} is currently LOCKED. Unlock it first if you want to remove it.`);
+        return;
+      }
+      const activeCount = DAYS.filter(d => state.dayConfigs[d].active).length;
+      if (cfg.active && activeCount <= 1) return;
+      cfg.active = !cfg.active;
+      ensureDefaultSchedule();
+      renderAll();
+    }
+
+    function updateDayConfig(day, field, value) {
+      state.dayConfigs[day][field] = value;
+      saveState();
+      renderAll();
+    }
+
+    function toggleDayLock(day) {
+      state.dayConfigs[day].locked = !state.dayConfigs[day].locked;
+      saveState();
+      renderAll();
+    }
+
+    function resetWeekLocksAndChecks() {
+      if (confirm("Start a fresh week? This unlocks all days and clears set checkboxes (your Profile, Warmup, and Logged Weights are kept safe).")) {
+        DAYS.forEach(d => state.dayConfigs[d].locked = false);
+        state.completedSets = {};
+        state.warmupChecked = {};
+        saveState();
+        renderAll();
       }
     }
 
@@ -362,19 +687,23 @@
       document.getElementById('aiPromptInput').value = text;
     }
 
-    // Dynamically queries Google's ListModels API so 404 model-not-found errors cannot happen
+    function handleCustomPrompt() {
+      const text = document.getElementById('aiPromptInput').value.trim();
+      if (!text) return;
+      generateOrRebalanceWeek(text);
+    }
+
+    // Dynamic Model Discovery to prevent 404 errors
     async function discoverAvailableModels(apiKey) {
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error?.message || `ListModels HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(data?.error?.message || `ListModels HTTP ${res.status}`);
+
       const supported = (data.models || [])
         .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
         .map(m => m.name.replace('models/', ''))
         .filter(name => name.startsWith('gemini-') && !name.includes('vision') && !name.includes('embedding') && !name.includes('tts') && !name.includes('image'));
 
-      // Prioritize fastest modern Flash models first, then Pro models
       supported.sort((a, b) => {
         const score = (n) => {
           if (n.includes('2.5-flash') && !n.includes('lite')) return 100;
@@ -386,9 +715,7 @@
         return score(b) - score(a);
       });
 
-      if (supported.length === 0) {
-        throw new Error("No text generation models enabled for this API key.");
-      }
+      if (supported.length === 0) throw new Error("No Gemini text models enabled for this API key.");
       return supported;
     }
 
@@ -433,108 +760,151 @@
       throw lastError || new Error("Failed across all discovered Gemini models.");
     }
 
-    async function sendToGemini() {
+    // Holistic Full-Week Periodization Engine
+    async function generateOrRebalanceWeek(instructionText) {
       const rawKey = localStorage.getItem('rhyd_gemini_api_key') || '';
       const apiKey = rawKey.replace(/\s+/g, '');
       if (!apiKey) {
-        toggleApiModal();
-        alert("Please paste your Gemini API Key first.");
+        toggleModal('apiModal');
+        alert("Please paste your Google AI Studio API Key first.");
         return;
       }
 
-      const userPrompt = document.getElementById('aiPromptInput').value.trim();
-      if (!userPrompt) return;
-
       const statusEl = document.getElementById('aiStatus');
-      const btnEl = document.getElementById('sendAiBtn');
+      const sendBtn = document.getElementById('sendAiBtn');
+      const buildBtn = document.getElementById('buildWeekBtn');
       const errBanner = document.getElementById('aiErrorBanner');
       const sumBanner = document.getElementById('aiSummaryBanner');
-      
+
       errBanner.classList.add('hidden');
       sumBanner.classList.add('hidden');
-      statusEl.innerText = "Routing & Rebuilding...";
-      statusEl.className = "text-[11px] text-amber-400 font-mono animate-pulse";
-      btnEl.disabled = true;
-      btnEl.innerText = "...";
+      statusEl.innerText = "Designing Weekly Split...";
+      statusEl.className = "text-[11px] text-[#1a73e8] font-mono font-bold animate-pulse";
+      sendBtn.disabled = true;
+      buildBtn.disabled = true;
 
-      const weekOverview = {};
-      state.selectedDays.forEach(d => {
-        weekOverview[d] = state.schedule[d] ? state.schedule[d].title : "Unassigned";
+      // Summarize Locked vs Unlocked days for holistic periodization
+      const lockedDaysSummary = {};
+      const unlockedDaysTargets = {};
+
+      DAYS.forEach(d => {
+        const cfg = state.dayConfigs[d];
+        if (!cfg.active) return;
+        const netLiftMins = cfg.modality === 'Swim' ? cfg.duration : Math.max(10, cfg.duration - (state.warmupMins || 8));
+        if (cfg.locked && state.schedule[d]) {
+          lockedDaysSummary[d] = {
+            status: "LOCKED_COMPLETED_DO_NOT_CHANGE",
+            duration: cfg.duration,
+            modality: cfg.modality,
+            title: state.schedule[d].title,
+            primaryMuscles: state.schedule[d].primaryMuscles || [],
+            exercisesDone: (state.schedule[d].blocks || []).flatMap(b => (b.exercises || []).map(e => e.name))
+          };
+        } else {
+          unlockedDaysTargets[d] = {
+            status: "UNLOCKED_NEEDS_PROGRAMMING",
+            totalDurationRequested: cfg.duration,
+            warmupMinutesIncluded: cfg.modality === 'Swim' ? 0 : (state.warmupMins || 8),
+            netWorkingMinutesToFill: netLiftMins,
+            modalityPreference: cfg.modality,
+            currentDraftTitle: state.schedule[d]?.title || "None"
+          };
+        }
       });
 
-      const systemInstruction = `
-You are the strength, conditioning, and physiotherapy AI engine for Rhyd James (36yo male, Brisbane).
-CONTEXT & GUARDRAILS:
-- 10 months post-MACI knee cartilage surgery + history of ITB tightness and shoulder discomfort.
-- Goals: Lose 3-4kg body fat while retaining/building muscle mass.
-- Equipment & Benchmarks: Up to 40kg DBs for bench press, barbell back squats to a box, barbell RDLs (20kg+ bar or DBs), restricted-arc leg extensions, single-leg squats to box, single-leg calf raises, Bosu balance, landmine presses, half-kneeling single-arm lat pulldowns, swimming (freestyle/pull buoy, avoiding hard wall push-offs on surgical knee).
-- STRICT RULE: Knee discomfort < 3/10. No high-impact plyos or deep uncontrolled knee shear.
-- SUPERSET vs STANDALONE RULES:
-  * For supersets: use "type": "superset", "label": "SUPERSET A — [Name]", "restBetweenExercises": "0-15s transition", "restAfterRoundSeconds": 90, "restNote": "Rest 90s after completing both A1 & A2", and put 2 exercises in "exercises" with codes "A1" and "A2" (or "B1", "B2").
-  * For standalone lifts: use "type": "standalone", "restSeconds": 120, "restNote": "Rest 2 mins between straight sets", and put 1 exercise in "exercises" with code "1", "2", etc.
+      const systemPrompt = `
+You are an elite, research-backed Private Strength & Conditioning Coach and Physiotherapist programming a holistic Mon–Sun training week.
 
-CURRENT STATE:
-- Currently viewing day: "${state.activeDay}"
-- Active training days this week: ${JSON.stringify(state.selectedDays)}
-- Week overview: ${JSON.stringify(weekOverview)}
-- Current "${state.activeDay}" workout detail: ${JSON.stringify(state.schedule[state.activeDay])}
+ATHLETE PERSISTENT PROFILE & HEALTH CONTEXT:
+${state.profileContext}
 
-USER REQUEST:
-"${userPrompt}"
+ATHLETE LOGGED WEIGHT MEMORY (Use these exact weights to calibrate progressive overload where relevant):
+${JSON.stringify(state.weightHistory)}
 
-TASK:
-Return ONLY a valid JSON object containing ONLY the day(s) that need to be modified or added in "updatedDays".
+CRITICAL PROGRAMMING & BIOMECHANICAL RULES:
+1. FULL-WEEK MUSCLE & JOINT RECOVERY:
+   - Never program the same primary muscle group (e.g., heavy Quads, heavy Chest/Anterior Delts, or heavy Posterior Chain) on consecutive back-to-back days!
+   - Inspect "LOCKED_COMPLETED_DAYS" carefully: if Monday is Locked and trained Heavy Lower Body, Tuesday MUST NOT be Heavy Lower Body.
+   - Distribute volume across the entire Mon-Sun week using evidence-based splits (e.g. Upper/Lower, Push/Pull/Legs, or Anterior/Posterior/Swim).
+2. STRICT TIME-BUDGET MATH (DO NOT UNDER-PROGRAM):
+   - Total Duration includes a ${state.warmupMins}-minute pre-session warmup for Strength/Conditioning days (Swim days spend 100% of time in the pool).
+   - Calculate exercise & set volume using exact time math:
+     * 1 Standalone Set (including execution + 90-120s rest) = ~3.0 minutes.
+     * 1 Superset Pair Round (A1 + A2 execution + 60-90s rest) = ~3.5 minutes.
+   - Therefore, to fill:
+     * 30m Total (${30 - state.warmupMins}m working time): program ~6-7 total sets/rounds (e.g. 1 standalone lift of 3 sets + 1 superset of 3 rounds).
+     * 45m Total (${45 - state.warmupMins}m working time): program ~10-11 total sets/rounds (e.g. 1 standalone lift of 4 sets + 2 supersets of 3-4 rounds).
+     * 60m Total (${60 - state.warmupMins}m working time): program ~14-16 total sets/rounds (e.g. 2 standalone lifts of 4 sets + 2 supersets of 4 rounds, OR 4 superset blocks of 4 rounds).
+     * 75m-90m Total: program ~19-24 total sets/rounds across 4-5 comprehensive blocks.
+3. SUPERSET vs STANDALONE VISIBILITY:
+   - For supersets: set "type": "superset", "label": "SUPERSET A — [Focus]", "restBetweenExercises": "10-15s transition", "restAfterRoundSeconds": 90, "restNote": "Rest 90s after completing both A1 & A2", and place 2 exercises inside "exercises" with codes "A1" and "A2" (or "B1", "B2").
+   - For standalone lifts: set "type": "standalone", "restSeconds": 120, "restNote": "Rest 2 mins between straight sets", and place 1 exercise inside "exercises" with code "1", "2", etc.
 
-EXACT JSON SCHEMA REQUIRED:
+CURRENT WEEK CONFIGURATION:
+- Currently viewing day tab: "${state.activeDay}"
+- LOCKED / COMPLETED DAYS (Immutable history—do NOT modify these days, but design around their fatigue):
+${JSON.stringify(lockedDaysSummary)}
+- UNLOCKED DAYS TO PROGRAM / REBALANCE:
+${JSON.stringify(unlockedDaysTargets)}
+
+USER / TRAINER INSTRUCTION:
+"${instructionText}"
+(Note: If the user explicitly asks in their instruction to change a day's duration, modality, or active days—e.g. "Make Friday a 45m Swim" or "Shorten Thursday to 30m"—include those updated day configurations in "updatedDayConfigs" as Long as that day is not locked.)
+
+RETURN ONLY VALID JSON MATCHING THIS EXACT SCHEMA:
 {
-  "selectedDays": ["Tue", "Thu", "Fri", "Sun"],
-  "activeDay": "DayNameToFocusOnAfterUpdate",
-  "summaryNote": "1-sentence direct summary of what changed.",
-  "updatedDays": {
-    "DayName": {
-      "title": "Workout Title",
-      "subtitle": "Workout Subtitle",
-      "aiNote": "Short coaching note on today's setup",
+  "summaryNote": "Clear, coach-style explanation of how you balanced muscle groups across the week and matched the exact minute budgets.",
+  "activeDay": "${state.activeDay}",
+  "updatedDayConfigs": {
+    "DayNameOptionalIfChanged": { "active": true, "duration": 45, "modality": "Swim" }
+  },
+  "updatedSchedule": {
+    "UnlockedDayName": {
+      "title": "Descriptive Workout Title",
+      "subtitle": "Target Muscles & Time Allocation Breakdown",
+      "primaryMuscles": ["Muscle1", "Muscle2"],
+      "estimatedMinutes": 60,
+      "aiNote": "Time & recovery rationale for this session",
       "blocks": [
         {
           "type": "standalone",
           "restSeconds": 120,
-          "restNote": "Rest 2 mins between sets",
+          "restNote": "Rest 2 mins between sets (~12 mins)",
           "exercises": [
             {
-              "id": "ex_1",
+              "id": "unique_id_1",
               "code": "1",
-              "name": "Exercise Name",
+              "name": "Standard Exercise Name",
               "sets": 4,
               "reps": "8-10",
-              "load": "Target Load / RPE",
-              "cues": "Form & MACI knee safety cue"
+              "load": "Recommended Weight / RPE",
+              "cues": "Clear biomechanical & tempo cue"
             }
           ]
         },
         {
           "type": "superset",
           "label": "SUPERSET A — Antagonist Pair",
-          "restBetweenExercises": "0-15s",
+          "restBetweenExercises": "15s transition",
           "restAfterRoundSeconds": 90,
-          "restNote": "Rest 90s after completing both A1 & A2",
+          "restNote": "Rest 90s after completing both A1 & A2 (~14 mins)",
           "exercises": [
             {
-              "id": "ex_a1",
+              "id": "unique_id_a1",
               "code": "A1",
-              "name": "First Exercise",
-              "sets": 3,
-              "reps": "10-12",
-              "load": "Load",
+              "name": "First Exercise Name",
+              "sets": 4,
+              "reps": "8-10",
+              "load": "Weight / RPE",
               "cues": "Cue"
             },
             {
-              "id": "ex_a2",
+              "id": "unique_id_a2",
               "code": "A2",
-              "name": "Second Exercise",
-              "sets": 3,
+              "name": "Second Exercise Name",
+              "sets": 4,
               "reps": "10-12",
-              "load": "Load",
+              "load": "Weight / RPE",
               "cues": "Cue"
             }
           ]
@@ -546,128 +916,165 @@ EXACT JSON SCHEMA REQUIRED:
 `;
 
       try {
-        const parsed = await callGeminiAutoRoute(apiKey, systemInstruction);
+        const parsed = await callGeminiAutoRoute(apiKey, systemPrompt);
 
-        if (parsed.selectedDays && Array.isArray(parsed.selectedDays)) {
-          state.selectedDays = parsed.selectedDays.sort((a, b) => DAYS.indexOf(a) - DAYS.indexOf(b));
-        }
-        if (parsed.updatedDays && typeof parsed.updatedDays === 'object') {
-          Object.keys(parsed.updatedDays).forEach(dayKey => {
-            state.schedule[dayKey] = parsed.updatedDays[dayKey];
-            if (!state.selectedDays.includes(dayKey) && DAYS.includes(dayKey)) {
-              state.selectedDays.push(dayKey);
-              state.selectedDays.sort((a, b) => DAYS.indexOf(a) - DAYS.indexOf(b));
+        // Apply any config updates on unlocked days
+        if (parsed.updatedDayConfigs && typeof parsed.updatedDayConfigs === 'object') {
+          Object.entries(parsed.updatedDayConfigs).forEach(([d, newCfg]) => {
+            if (DAYS.includes(d) && !state.dayConfigs[d].locked) {
+              if (typeof newCfg.active === 'boolean') state.dayConfigs[d].active = newCfg.active;
+              if (newCfg.duration) state.dayConfigs[d].duration = parseInt(newCfg.duration, 10);
+              if (newCfg.modality) state.dayConfigs[d].modality = newCfg.modality;
             }
           });
         }
-        if (parsed.activeDay && state.selectedDays.includes(parsed.activeDay)) {
+
+        // Apply updated workouts ONLY to unlocked days
+        if (parsed.updatedSchedule && typeof parsed.updatedSchedule === 'object') {
+          Object.entries(parsed.updatedSchedule).forEach(([d, workoutObj]) => {
+            if (DAYS.includes(d) && !state.dayConfigs[d]?.locked) {
+              state.schedule[d] = workoutObj;
+              state.dayConfigs[d].active = true;
+            }
+          });
+        }
+
+        if (parsed.activeDay && state.dayConfigs[parsed.activeDay]?.active) {
           state.activeDay = parsed.activeDay;
         }
 
-        initDefaultScheduleIfEmpty();
+        ensureDefaultSchedule();
         saveState();
         renderAll();
 
-        sumBanner.innerText = `✅ [${parsed._modelUsed}] ${parsed.summaryNote || 'Schedule updated.'}`;
+        sumBanner.innerHTML = `<strong>✨ Coach Update (${parsed._modelUsed}):</strong> ${parsed.summaryNote || 'Weekly schedule rebalanced.'}`;
         sumBanner.classList.remove('hidden');
         document.getElementById('aiPromptInput').value = '';
       } catch (err) {
-        console.error("Gemini Error:", err);
-        errBanner.innerText = `⚠️ Diagnostic Error: ${err.message}`;
+        console.error(err);
+        errBanner.innerText = `⚠️ Error: ${err.message}`;
         errBanner.classList.remove('hidden');
       } finally {
         statusEl.innerText = "Ready";
-        statusEl.className = "text-[11px] text-slate-400 font-mono";
-        btnEl.disabled = false;
-        btnEl.innerText = "Update";
+        statusEl.className = "text-[11px] text-[#5f6368] font-mono";
+        sendBtn.disabled = false;
+        buildBtn.disabled = false;
       }
-    }
-
-    function renderDaySelector() {
-      const container = document.getElementById('daySelector');
-      container.innerHTML = '';
-      DAYS.forEach(day => {
-        const isSelected = state.selectedDays.includes(day);
-        const btn = document.createElement('button');
-        btn.className = `py-2 rounded-lg text-xs font-bold transition border ${
-          isSelected 
-            ? 'bg-sky-500 text-slate-950 border-sky-400 shadow' 
-            : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
-        }`;
-        btn.innerText = day;
-        btn.onclick = () => {
-          if (state.selectedDays.includes(day)) {
-            if (state.selectedDays.length === 1) return;
-            state.selectedDays = state.selectedDays.filter(d => d !== day);
-          } else {
-            state.selectedDays.push(day);
-            state.selectedDays.sort((a, b) => DAYS.indexOf(a) - DAYS.indexOf(b));
-          }
-          initDefaultScheduleIfEmpty();
-          renderAll();
-        };
-        container.appendChild(btn);
-      });
-      document.getElementById('dayCountBadge').innerText = `${state.selectedDays.length} Days`;
     }
 
     function toggleSet(exId, setIdx, restSec) {
       const key = `${state.activeDay}_${exId}_${setIdx}`;
       state.completedSets[key] = !state.completedSets[key];
       saveState();
-      if (state.completedSets[key] && restSec) {
+      if (state.completedSets[key] && restSec > 0) {
         startTimer(restSec);
       }
       renderWorkoutView();
+    }
+
+    function toggleWarmupItem(idx) {
+      const key = `${state.activeDay}_wu_${idx}`;
+      state.warmupChecked[key] = !state.warmupChecked[key];
+      saveState();
+      renderWarmupBlock();
+    }
+
+    function renderWarmupBlock() {
+      const activeCfg = state.dayConfigs[state.activeDay];
+      const warmupCard = document.getElementById('warmupCard');
+      if (activeCfg?.modality === 'Swim') {
+        warmupCard.classList.add('hidden');
+        return;
+      }
+      warmupCard.classList.remove('hidden');
+      document.getElementById('warmupDurationBadge').innerText = `${state.warmupMins || 8} Mins`;
+
+      const listEl = document.getElementById('rehabWarmupList');
+      listEl.innerHTML = (state.warmupItems || []).map((item, idx) => {
+        const key = `${state.activeDay}_wu_${idx}`;
+        const checked = state.warmupChecked[key] ? 'checked' : '';
+        return `
+          <label class="flex items-center space-x-2.5 cursor-pointer py-0.5">
+            <input type="checkbox" ${checked} onchange="toggleWarmupItem(${idx})" class="rounded border-[#dadce0] text-[#1e8e3e] h-4 w-4 focus:ring-0">
+            <span class="text-[#202124]">${item}</span>
+          </label>
+        `;
+      }).join('');
     }
 
     function renderWorkoutView() {
       const tabsEl = document.getElementById('activeDayTabs');
       tabsEl.innerHTML = '';
 
-      state.selectedDays.forEach(day => {
-        const dayPlan = state.schedule[day] || DEFAULT_TEMPLATES.LOWER_A;
+      const activeDays = DAYS.filter(d => state.dayConfigs[d]?.active);
+      activeDays.forEach(day => {
+        const cfg = state.dayConfigs[day];
+        const plan = state.schedule[day] || BASELINE_TEMPLATES.LOWER_STRENGTH;
         const isActive = day === state.activeDay;
+
         const btn = document.createElement('button');
-        btn.className = `flex-shrink-0 px-3.5 py-2 rounded-lg text-xs font-bold border transition ${
+        btn.className = `flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold border transition flex items-center space-x-1.5 ${
           isActive
-            ? 'bg-slate-800 text-white border-sky-400 shadow'
-            : 'bg-slate-900/70 text-slate-400 border-slate-800'
+            ? 'bg-[#1a73e8] text-white border-[#1a73e8] shadow-sm'
+            : (cfg.locked ? 'bg-[#e6f4ea] text-[#1e8e3e] border-[#ceead6]' : 'bg-white text-[#5f6368] border-[#dadce0] hover:bg-gray-50')
         }`;
-        const shortTag = dayPlan.title.split(' ')[0];
-        btn.innerText = `${day}: ${shortTag}`;
+        const lockIcon = cfg.locked ? '🔒 ' : '';
+        btn.innerHTML = `<span>${lockIcon}${day} (${cfg.duration}m)</span>`;
         btn.onclick = () => {
           state.activeDay = day;
           saveState();
+          renderWarmupBlock();
           renderWorkoutView();
         };
         tabsEl.appendChild(btn);
       });
 
-      const activePlan = state.schedule[state.activeDay] || DEFAULT_TEMPLATES.LOWER_A;
+      const cfg = state.dayConfigs[state.activeDay];
+      const activePlan = state.schedule[state.activeDay] || BASELINE_TEMPLATES.LOWER_STRENGTH;
       const stepsEl = document.getElementById('workoutSteps');
 
+      const musclesHtml = (activePlan.primaryMuscles || [])
+        .map(m => `<span class="text-[11px] font-semibold bg-[#e8f0fe] text-[#1a73e8] px-2.5 py-0.5 rounded-full">${m}</span>`)
+        .join('');
+
+      const workMins = cfg.modality === 'Swim' ? cfg.duration : Math.max(10, cfg.duration - (state.warmupMins || 8));
+
       stepsEl.innerHTML = `
-        <div class="px-1">
-          <h3 class="text-lg font-bold text-white">${state.activeDay} — ${activePlan.title}</h3>
-          <p class="text-xs text-slate-400">${activePlan.subtitle || ''}</p>
-          ${activePlan.aiNote ? `<p class="text-[11px] text-indigo-300 mt-1">💬 ${activePlan.aiNote}</p>` : ''}
+        <div class="g-card p-4 bg-white">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-[#1a73e8]">${state.activeDay} • ${cfg.duration}m Total (${workMins}m Working)</span>
+                ${musclesHtml}
+              </div>
+              <h3 class="text-lg font-extrabold text-[#202124]">${activePlan.title}</h3>
+              <p class="text-xs text-[#5f6368] mt-0.5">${activePlan.subtitle || ''}</p>
+            </div>
+            <button onclick="toggleDayLock('${state.activeDay}')" class="flex-shrink-0 text-xs px-3 py-1.5 rounded-full font-bold border transition ${
+              cfg.locked
+                ? 'bg-[#1e8e3e] text-white border-[#1e8e3e]'
+                : 'bg-[#f8f9fa] text-[#202124] border-[#dadce0] hover:bg-gray-100'
+            }">
+              ${cfg.locked ? '🔒 Day Locked' : '🔓 Lock Day'}
+            </button>
+          </div>
+          ${activePlan.aiNote ? `<div class="mt-2.5 pt-2.5 border-t border-[#dadce0] text-xs text-[#5f6368]">💡 <strong>Trainer Note:</strong> ${activePlan.aiNote}</div>` : ''}
         </div>
       `;
 
-      (activePlan.blocks || []).forEach((block) => {
+      (activePlan.blocks || []).forEach(block => {
         if (block.type === 'superset') {
           const wrapper = document.createElement('div');
-          wrapper.className = "superset-wrapper rounded-xl p-4 shadow-lg";
-          
+          wrapper.className = "superset-wrapper p-4";
+
           let innerHtml = `
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-indigo-500/30">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-[#8ab4f8]/60">
               <div class="flex items-center space-x-2">
-                <span class="bg-indigo-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">🔗 Superset Pair</span>
-                <span class="text-xs font-bold text-indigo-200">${block.label || 'Superset Block'}</span>
+                <span class="bg-[#1a73e8] text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">🔗 Superset Pair</span>
+                <span class="text-xs font-bold text-[#174ea6]">${block.label || 'Superset Block'}</span>
               </div>
-              <button onclick="startTimer(${block.restAfterRoundSeconds || 90})" class="text-[11px] bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-700 px-2 py-0.5 rounded font-mono">
-                ⏱️ ${block.restAfterRoundSeconds || 90}s Rest After Pair
+              <button onclick="startTimer(${block.restAfterRoundSeconds || 90})" class="text-[11px] bg-white hover:bg-blue-50 text-[#1a73e8] border border-[#8ab4f8] px-2.5 py-1 rounded-full font-mono font-semibold shadow-sm">
+                ⏱️ ${block.restAfterRoundSeconds || 90}s Rest
               </button>
             </div>
           `;
@@ -675,36 +1082,47 @@ EXACT JSON SCHEMA REQUIRED:
           (block.exercises || []).forEach((ex, exIdx) => {
             const isLastInPair = exIdx === block.exercises.length - 1;
             const autoRest = isLastInPair ? (block.restAfterRoundSeconds || 90) : 0;
+            const normKey = normalizeExerciseKey(ex.name);
+            const savedWeight = state.weightHistory[normKey] || '';
+            const safeNameAttr = (ex.name || '').replace(/'/g, "\\'");
 
             let checkboxes = '';
             for (let s = 1; s <= ex.sets; s++) {
               const checkKey = `${state.activeDay}_${ex.id}_${s}`;
               const checked = state.completedSets[checkKey] ? 'checked' : '';
               checkboxes += `
-                <label class="flex items-center space-x-1.5 bg-slate-950/90 px-2.5 py-1.5 rounded border border-slate-800 cursor-pointer select-none">
-                  <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s}, ${autoRest})" class="rounded bg-slate-900 border-slate-700 text-indigo-500 h-4 w-4">
-                  <span class="text-xs font-mono">Set ${s}</span>
+                <label class="flex items-center space-x-1.5 bg-[#f8f9fa] hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-[#dadce0] cursor-pointer select-none transition">
+                  <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s}, ${autoRest})" class="rounded border-[#dadce0] text-[#1a73e8] h-4 w-4">
+                  <span class="text-xs font-mono font-medium text-[#202124]">Set ${s}</span>
                 </label>
               `;
             }
 
             innerHtml += `
-              <div class="bg-slate-900/90 rounded-lg p-3.5 border border-slate-800">
-                <div class="flex justify-between items-start">
+              <div class="bg-white rounded-xl p-3.5 border border-[#dadce0] shadow-sm">
+                <div class="flex justify-between items-start gap-2">
                   <div>
-                    <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800">${ex.code || ('A' + (exIdx + 1))}</span>
-                    <h4 class="text-sm font-bold text-white mt-1.5">${ex.name}</h4>
+                    <span class="text-[11px] font-mono font-bold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded">${ex.code || ('A' + (exIdx + 1))}</span>
+                    <h4 class="text-sm font-bold text-[#202124] mt-1">${ex.name}</h4>
                   </div>
-                  <span class="text-xs font-bold bg-slate-800 text-slate-200 px-2.5 py-1 rounded border border-slate-700">${ex.sets} × ${ex.reps}</span>
+                  <span class="flex-shrink-0 text-xs font-bold bg-[#f8f9fa] text-[#202124] px-2.5 py-1 rounded-lg border border-[#dadce0]">${ex.sets} × ${ex.reps}</span>
                 </div>
-                <div class="mt-2 text-xs text-slate-300"><strong>Load:</strong> ${ex.load}</div>
-                <div class="mt-1 text-xs text-slate-400"><strong>Cue:</strong> ${ex.cues}</div>
-                <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex flex-wrap gap-2">${checkboxes}</div>
+
+                <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div class="text-[#5f6368]"><strong>Target:</strong> <span class="text-[#202124]">${ex.load}</span></div>
+                  <div class="flex items-center space-x-1.5">
+                    <label class="text-[11px] font-semibold text-[#5f6368]">Actual Weight:</label>
+                    <input type="text" value="${savedWeight}" placeholder="Optional (e.g. 37.5kg)" onchange="logExerciseWeight('${safeNameAttr}', this.value)" class="w-36 bg-[#f8f9fa] border border-[#dadce0] rounded-lg px-2 py-1 text-xs font-mono text-[#1a73e8] font-semibold focus:outline-none focus:border-[#1a73e8]">
+                  </div>
+                </div>
+
+                <div class="mt-1.5 text-xs text-[#5f6368]"><strong>Cue:</strong> ${ex.cues}</div>
+                <div class="mt-3 pt-2.5 border-t border-[#dadce0]/70 flex flex-wrap gap-2">${checkboxes}</div>
               </div>
               ${!isLastInPair ? `
                 <div class="flex items-center justify-center my-1.5">
-                  <div class="bg-indigo-950/90 border border-indigo-700/70 text-indigo-300 text-[11px] font-mono px-3 py-0.5 rounded-full">
-                    ⬇️ Immediately into next exercise (${block.restBetweenExercises || '0s rest'}) ⬇️
+                  <div class="bg-[#e8f0fe] border border-[#8ab4f8] text-[#1a73e8] text-[11px] font-mono font-semibold px-3 py-0.5 rounded-full">
+                    ⬇️ Immediately into ${block.exercises[exIdx + 1]?.code || 'A2'} (${block.restBetweenExercises || '0-15s'}) ⬇️
                   </div>
                 </div>
               ` : ''}
@@ -712,8 +1130,8 @@ EXACT JSON SCHEMA REQUIRED:
           });
 
           innerHtml += `
-            <div class="mt-2.5 text-[11px] text-indigo-300 font-medium flex justify-between items-center px-1">
-              <span>🔄 ${block.restNote || 'Complete both exercises back-to-back before resting.'}</span>
+            <div class="mt-2.5 text-[11px] text-[#174ea6] font-semibold px-1">
+              🔄 ${block.restNote || 'Complete both exercises back-to-back before resting.'}
             </div>
           `;
 
@@ -723,52 +1141,54 @@ EXACT JSON SCHEMA REQUIRED:
         } else if (block.exercises && block.exercises[0]) {
           const ex = block.exercises[0];
           const restSec = block.restSeconds || 90;
+          const normKey = normalizeExerciseKey(ex.name);
+          const savedWeight = state.weightHistory[normKey] || '';
+          const safeNameAttr = (ex.name || '').replace(/'/g, "\\'");
+
           let checkboxes = '';
           for (let s = 1; s <= ex.sets; s++) {
             const checkKey = `${state.activeDay}_${ex.id}_${s}`;
             const checked = state.completedSets[checkKey] ? 'checked' : '';
             checkboxes += `
-              <label class="flex items-center space-x-1.5 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 cursor-pointer select-none">
-                <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s}, ${restSec})" class="rounded bg-slate-950 border-slate-700 text-sky-500 h-4 w-4">
-                <span class="text-xs font-mono">Set ${s}</span>
+              <label class="flex items-center space-x-1.5 bg-[#f8f9fa] hover:bg-gray-100 px-3 py-1.5 rounded-lg border border-[#dadce0] cursor-pointer select-none transition">
+                <input type="checkbox" ${checked} onchange="toggleSet('${ex.id}', ${s}, ${restSec})" class="rounded border-[#dadce0] text-[#1a73e8] h-4 w-4">
+                <span class="text-xs font-mono font-medium text-[#202124]">Set ${s}</span>
               </label>
             `;
           }
 
           const card = document.createElement('div');
-          card.className = "standalone-card rounded-xl p-4 shadow";
+          card.className = "standalone-card p-4";
           card.innerHTML = `
             <div class="flex justify-between items-center mb-2">
-              <span class="bg-sky-950 text-sky-400 border border-sky-800 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">⚡ Standalone Lift — Rest Between Every Set</span>
-              <button onclick="startTimer(${restSec})" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 px-2 py-0.5 rounded font-mono">
+              <span class="bg-[#e8f0fe] text-[#1a73e8] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">⚡ Standalone Lift — Rest Every Set</span>
+              <button onclick="startTimer(${restSec})" class="text-[11px] bg-[#f8f9fa] hover:bg-gray-200 text-[#202124] border border-[#dadce0] px-2.5 py-1 rounded-full font-mono font-semibold">
                 ⏱️ ${restSec}s Rest
               </button>
             </div>
-            <div class="flex justify-between items-start mt-1">
-              <div>
-                <h4 class="text-base font-bold text-white">${ex.name}</h4>
-              </div>
-              <span class="text-xs font-bold bg-slate-800 text-slate-200 px-2.5 py-1 rounded border border-slate-700">${ex.sets} × ${ex.reps}</span>
+            <div class="flex justify-between items-start gap-2 mt-1">
+              <h4 class="text-base font-bold text-[#202124]">${ex.name}</h4>
+              <span class="flex-shrink-0 text-xs font-bold bg-[#f8f9fa] text-[#202124] px-2.5 py-1 rounded-lg border border-[#dadce0]">${ex.sets} × ${ex.reps}</span>
             </div>
-            <div class="mt-2 text-xs text-slate-300"><strong>Load:</strong> ${ex.load}</div>
-            <div class="mt-1 text-xs text-slate-400"><strong>Cue:</strong> ${ex.cues}</div>
-            <div class="mt-2 text-[11px] text-sky-400/90 font-mono">⏸️ ${block.restNote || `Rest ${restSec}s between each set`}</div>
-            <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap gap-2">${checkboxes}</div>
+
+            <div class="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="text-[#5f6368]"><strong>Target:</strong> <span class="text-[#202124]">${ex.load}</span></div>
+              <div class="flex items-center space-x-1.5">
+                <label class="text-[11px] font-semibold text-[#5f6368]">Actual Weight:</label>
+                <input type="text" value="${savedWeight}" placeholder="Optional (e.g. 80kg)" onchange="logExerciseWeight('${safeNameAttr}', this.value)" class="w-36 bg-[#f8f9fa] border border-[#dadce0] rounded-lg px-2 py-1 text-xs font-mono text-[#1a73e8] font-semibold focus:outline-none focus:border-[#1a73e8]">
+              </div>
+            </div>
+
+            <div class="mt-1.5 text-xs text-[#5f6368]"><strong>Cue:</strong> ${ex.cues}</div>
+            <div class="mt-2 text-[11px] text-[#1a73e8] font-mono font-medium">⏸️ ${block.restNote || `Rest ${restSec}s between each set`}</div>
+            <div class="mt-3 pt-3 border-t border-[#dadce0] flex flex-wrap gap-2">${checkboxes}</div>
           `;
           stepsEl.appendChild(card);
         }
       });
     }
 
-    function resetToDefaults() {
-      if (confirm("Reset the week back to your baseline schedule (including Friday Swim & Superset blocks)?")) {
-        state.schedule = {};
-        state.completedSets = {};
-        initDefaultScheduleIfEmpty();
-        renderAll();
-      }
-    }
-
+    // Rest Timer
     let timerInterval = null;
     function startTimer(seconds) {
       clearInterval(timerInterval);
@@ -797,11 +1217,12 @@ EXACT JSON SCHEMA REQUIRED:
 
     function renderAll() {
       updateApiKeyButtonState();
-      renderDaySelector();
+      renderWeeklyPlanner();
+      renderWarmupBlock();
       renderWorkoutView();
     }
 
-    initDefaultScheduleIfEmpty();
+    ensureDefaultSchedule();
     renderAll();
   </script>
 </body>
